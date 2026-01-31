@@ -5,11 +5,12 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const JWT_EXPIRATION = "7d"; // Token expires in 7 days
 const COOKIE_NAME = "auth_token";
 
-// interface JWTPayload {
-//   userId: string;
-// }
+interface JWTPayload {
+  userId: string;
+  [key: string]: string | number | boolean | null | undefined;
+}
 
-export async function generateJWT(payload: jose.JWTPayload) {
+export async function generateJWT(payload: JWTPayload) {
   return await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -17,10 +18,10 @@ export async function generateJWT(payload: jose.JWTPayload) {
     .sign(JWT_SECRET);
 }
 
-export async function verifyJWT(token: string) {
+export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jose.jwtVerify(token, JWT_SECRET);
-    return payload;
+    return payload as JWTPayload;
   } catch (error) {
     console.error("Error verifying session:", error);
     return null;
@@ -53,7 +54,7 @@ export async function getAuthPayload() {
     if (!token) return null;
 
     const payload = await verifyJWT(token);
-    return payload;
+    return payload ? { userId: payload.userId } : null;
   } catch (error) {
     console.error("Error getting payload:", error);
     return null;
