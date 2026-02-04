@@ -1,12 +1,24 @@
-# Digital Sports Cards (Real-Time Player Analytics)
+# HeatCheck: Real-Time Sports Equity Market
 
-A real-time digital sports card web application built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, and React Query.
-The app displays dynamic player analytics in a modern trading-card-style UI with animations and a collectible experience.
+HeatCheck is a high-performance web application that transforms live sports statistics into a tradable financial market. Users manage a virtual portfolio of athletes, where "Heat Scores" drive dynamic pricing, allowing sports fans to put their analytical skills to the test in a competitive, real-time environment.
+
+🚀 Core Features
+Dynamic Valuation: Proprietary algorithm that translates PPG, RPG, and efficiency into real-time market value.
+
+Pro-Grade UI: High-contrast, data-dense dashboard built for speed and clarity.
+
+Secure Infrastructure: Robust custom authentication using Argon2id and atomic database transactions.
+
+Live Insights: AI-generated performance context to help users make smarter trades.
 
 ## Tech Stack
 
-- Next.js (App Router)
+- Next.js
+- Zustand
 - TypeScript
+- BallDontLie API
+- Neon Serverless (Drizzle)
+- JWT
 - Tailwind CSS
 - shadcn/ui
 - @tanstack/react-query
