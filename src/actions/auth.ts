@@ -2,10 +2,11 @@
 
 import db from "@/db/index";
 import { usersTable } from "@/db/schema";
-import findUserByEmail from "@/lib/findUserByEmail";
+import { deleteAuthCookie, setAuthCookie } from "@/lib/auth";
+import { findUsername, findUserByEmail } from "@/lib/dal";
 import * as argon2 from "argon2";
-import { eq } from "drizzle-orm";
 import z from "zod";
+import { redirect } from "next/navigation";
 
 const SignUpSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -47,91 +48,103 @@ export type ActionResponse =
 export async function signInAction(
   formData: SignInData,
 ): Promise<ActionResponse> {
-  try {
-    const validation = SignInSchema.safeParse(formData);
+  const validation = SignInSchema.safeParse(formData);
 
-    if (!validation.success) {
-      // Return the specific error messages to the UI
-      return {
-        success: false,
-        message: "Validation failed",
-        errors: z.flattenError(validation.error).fieldErrors,
-      };
-    }
-
-    const { email, password } = validation.data;
-
-    const user = await findUserByEmail(email);
-
-    if (!user) {
-      return {
-        success: false,
-        message: "Invalid email or password",
-        errors: {
-          email: ["Invalid email or password"],
-        },
-      };
-    }
-
-    const isPassword = await argon2.verify(user.passwordHash, password);
-
-    if (!isPassword) {
-      return {
-        success: false,
-        message: "Invalid email or password",
-        errors: {
-          email: ["Invalid email or password"],
-        },
-      };
-    }
-
-    return {
-      success: true,
-      message: "Signed in successfully",
-    };
-  } catch (error) {
-    console.error("Error getting user by email:", error);
+  if (!validation.success) {
     return {
       success: false,
-      message: "An error occurred while signing in",
-      errors: { _form: ["Failed to sign in"] },
+      message: "Validation failed",
+      errors: z.flattenError(validation.error).fieldErrors,
     };
   }
+
+  const { email, password } = validation.data;
+
+  const user = await findUserByEmail(email);
+  if (!user) {
+    return {
+      success: false,
+      message: "Invalid email or password",
+      errors: { email: ["Invalid email or password"] },
+    };
+  }
+
+  const isPassword = await argon2.verify(user.passwordHash, password);
+  if (!isPassword) {
+    return {
+      success: false,
+      message: "Invalid email or password",
+      errors: { email: ["Invalid email or password"] },
+    };
+  }
+
+  // success path: set cookie then redirect (no return)
+  await setAuthCookie(user.id);
+  redirect("/dashboard");
 }
 
 export async function signUpAction(
   formData: SignUpData,
 ): Promise<ActionResponse> {
-  try {
-    const validation = SignUpSchema.safeParse(formData);
+  const validation = SignUpSchema.safeParse(formData);
 
-    if (!validation.success) {
-      // Return the specific error messages to the UI
-      return {
-        success: false,
-        message: "Validation failed",
-        errors: z.flattenError(validation.error).fieldErrors,
-      };
-    }
+  if (!validation.success) {
+    // Return the specific error messages to the UI
+    return {
+      success: false,
+      message: "Validation failed",
+      errors: z.flattenError(validation.error).fieldErrors,
+    };
+  }
 
-    // If valid, proceed with data from 'validation.data'
-    const { firstName, lastName, username, email, password } = validation.data;
-    const passwordHash = await argon2.hash(password);
+  // If valid, proceed with data from 'validation.data'
+  const { firstName, lastName, username, email, password } = validation.data;
+  const passwordHash = await argon2.hash(password);
 
-    await db.insert(usersTable).values({
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) {
+    return {
+      success: false,
+      message: "User with this email already exists",
+      errors: { email: ["User with this email already exists"] },
+    };
+  }
+
+  const existingUsername = await findUsername(username);
+  if (existingUsername) {
+    return {
+      success: false,
+      message: "User with this username already exists",
+      errors: { email: ["User with this username already exists"] },
+    };
+  }
+
+  const createUser = await db
+    .insert(usersTable)
+    .values({
       firstName,
       lastName,
       username,
       email,
       passwordHash,
-    });
-    return { success: true, message: "Welcome to the league!" };
-  } catch (error) {
-    console.error("Sign up error:", error);
+    })
+    .returning({ id: usersTable.id });
+
+  const user = createUser[0]?.id;
+
+  if (!user) {
     return {
       success: false,
-      message: "Could not create account. Try a different username or email",
-      errors: { _form: ["Failed to sign up"] },
+      message: "Failed to create user",
+      errors: { _form: ["Failed to create user"] },
     };
   }
+
+  await setAuthCookie(user);
+  redirect("/dashboard");
+}
+
+export async function signOut() {
+  await deleteAuthCookie();
+  redirect("/signin");
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ActionResponse, signInAction, SignInData } from "@/actions/auth";
-import { error } from "console";
 
 const initialFormData: SignInData = {
   email: "",

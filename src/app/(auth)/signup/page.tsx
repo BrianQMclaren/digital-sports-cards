@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionResponse, signUpAction, SignUpData } from "@/actions/auth";
-import { use, useState } from "react";
+import { useState } from "react";
 
 const initialFormData: SignUpData = {
   firstName: "",
