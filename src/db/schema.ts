@@ -24,7 +24,7 @@ export const usersTable = pgTable("usersTable", {
 // 2. Players (The Athletes & Multi-Sport Stats)
 export const playersTable = pgTable("playersTable", {
   id: uuid("id").primaryKey().defaultRandom(),
-  ballDontLieId: text("ball_dont_lie_id").notNull(), // Using IDs from Sports API (e.g. BallDontLie)
+  ballDontLieId: integer("ball_dont_lie_id").notNull(), // Using IDs from Sports API (e.g. BallDontLie)
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   sport: text("sport").notNull(), // "NBA", "MLB", "NFL"
