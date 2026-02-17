@@ -4,7 +4,7 @@ import { usersTable } from "@/db/schema";
 import { getAuthPayload } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 
-export const getCurrentUser = cache(async () => {
+export async function getCurrentUser() {
   const session = await getAuthPayload();
   if (!session?.userId) return null;
   try {
@@ -16,7 +16,7 @@ export const getCurrentUser = cache(async () => {
     console.error("Error getting user by ID:", error);
     return null;
   }
-});
+}
 
 export const findUsername = cache(async (username: string) => {
   const user = await db.query.usersTable.findFirst({

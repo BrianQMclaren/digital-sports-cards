@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 import { getCurrentUser } from "@/lib/dal";
 import { redirect } from "next/navigation";
