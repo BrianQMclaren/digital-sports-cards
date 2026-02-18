@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         ballDontLieId: player.id,
         firstName: player.first_name,
         lastName: player.last_name,
-        sport: "basketball",
+        sport: "NBA",
       };
       return insert;
     });

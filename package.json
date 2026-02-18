@@ -7,6 +7,7 @@
     "build": "next build",
     "build:clean": "rm -rf .next && next build",
     "start": "next start",
+    "seed": "tsx scripts/seed.ts",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"

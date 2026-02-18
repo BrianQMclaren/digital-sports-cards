@@ -6,6 +6,7 @@ import {
   jsonb,
   integer,
   uuid,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // 1. Users
@@ -24,7 +25,7 @@ export const usersTable = pgTable("usersTable", {
 // 2. Players (The Athletes & Multi-Sport Stats)
 export const playersTable = pgTable("playersTable", {
   id: uuid("id").primaryKey().defaultRandom(),
-  ballDontLieId: integer("ball_dont_lie_id").notNull(), // Using IDs from Sports API (e.g. BallDontLie)
+  ballDontLieId: integer("ball_dont_lie_id").notNull().unique(), // Using IDs from Sports API (e.g. BallDontLie)
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   sport: text("sport").notNull(), // "NBA", "MLB", "NFL"
@@ -37,19 +38,33 @@ export const playersTable = pgTable("playersTable", {
   gamesPlayed: integer("games_played").default(0),
 
   // Dynamic Valuation & AI Insights
-  currentPrice: doublePrecision("current_price").default(0.0),
+  heatCheckScore: doublePrecision("heat_check_score").default(50.0),
+  currentPrice: doublePrecision("current_price").notNull().default(0.0),
   latestInsight: text("latest_insight"),
   performanceContext: jsonb("performance_context"), // Detailed game logs
   lastUpdated: timestamp("last_updated").defaultNow(),
 });
 
 // 3. Cards (The Ownership Link)
-export const cardsTable = pgTable("cardsTable", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => usersTable.id, {
-    onDelete: "cascade",
+export const cardsTable = pgTable(
+  "cardsTable",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => usersTable.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    playerId: uuid("player_id")
+      .references(() => playersTable.id)
+      .notNull(),
+    buyPrice: doublePrecision("buy_price").notNull(),
+    mintedAt: timestamp("minted_at").defaultNow(),
+  },
+  (t) => ({
+    userPlayerUnique: unique("cards_user_player_unique").on(
+      t.userId,
+      t.playerId,
+    ),
   }),
-  playerId: uuid("player_id").references(() => playersTable.id),
-  buyPrice: doublePrecision("buy_price").notNull(),
-  mintedAt: timestamp("minted_at").defaultNow(),
-});
+);

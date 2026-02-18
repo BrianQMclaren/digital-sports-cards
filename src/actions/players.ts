@@ -6,7 +6,7 @@ export async function fetchPlayers(cursor: number): Promise<PlayersResponse> {
   const headers = { Authorization: key };
   const init = { headers };
   const response = await fetch(
-    `https://api.balldontlie.io/v1/players?per_page=100&cursor=${cursor}`,
+    `https://api.balldontlie.io/v1/players/active?per_page=100&cursor=${cursor}`,
     init,
   );
   if (!response.ok)
