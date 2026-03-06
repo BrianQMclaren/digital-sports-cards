@@ -34,6 +34,11 @@ export const getCardsForUser = async (userId: string) => {
   return cards;
 };
 
+export const getAllPlayers = async () => {
+  const players = await db.query.playersTable.findMany();
+  return players;
+};
+
 export const findUsername = cache(async (username: string) => {
   const user = await db.query.usersTable.findFirst({
     where: eq(usersTable.username, username.toLowerCase()),

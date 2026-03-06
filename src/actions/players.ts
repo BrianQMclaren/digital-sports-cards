@@ -1,6 +1,8 @@
-import { PlayersResponse, PlayersResponseSchema } from "@/lib/types";
+import { BdlPlayersResponse, BdlPlayersResponseSchema } from "@/lib/types";
 
-export async function fetchPlayers(cursor: number): Promise<PlayersResponse> {
+export async function fetchPlayers(
+  cursor: number,
+): Promise<BdlPlayersResponse> {
   const key = process.env.BALLDONTLIE_API_KEY;
   if (!key) throw new Error("Missing BALLDONTLIE_API_KEY");
   const headers = { Authorization: key };
@@ -14,7 +16,7 @@ export async function fetchPlayers(cursor: number): Promise<PlayersResponse> {
       `Players fetch failed: ${response.status} ${response.statusText}`,
     );
   const data = await response.json();
-  return PlayersResponseSchema.parse(data);
+  return BdlPlayersResponseSchema.parse(data);
 }
 
 /*
