@@ -3,7 +3,7 @@
 HeatCheck is a high-performance web application that transforms live sports statistics into a tradable financial market. Users manage a virtual portfolio of athletes, where "Heat Scores" drive dynamic pricing, allowing sports fans to put their analytical skills to the test in a competitive, real-time environment.
 
 🚀 Core Features
-Dynamic Valuation: Proprietary algorithm that translates PPG, RPG, and efficiency into real-time market value.
+Dynamic Valuation: Proprietary algorithm that translates PPG, RPG, AST, and efficiency into real-time market value.
 
 Pro-Grade UI: High-contrast, data-dense dashboard built for speed and clarity.
 
@@ -14,14 +14,13 @@ Live Insights: AI-generated performance context to help users make smarter trade
 ## Tech Stack
 
 - Next.js
-- Zustand
 - TypeScript
 - BallDontLie API
 - Neon Serverless (Drizzle)
 - JWT
+- Zod
 - Tailwind CSS
 - shadcn/ui
-- @tanstack/react-query
 - Vercel Deployment
 
 ## Roadmap
