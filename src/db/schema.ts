@@ -45,6 +45,24 @@ export const playersTable = pgTable("playersTable", {
   lastUpdated: timestamp("last_updated").defaultNow(),
 });
 
+export const gamesTable = pgTable("gamesTable", {
+  id: uuid().primaryKey().defaultRandom(),
+  ballDontLieId: integer("ball_dont_lie_id").notNull().unique(),
+  playerId: uuid("player_id")
+    .notNull()
+    .references(
+      () => {
+        return playersTable.id;
+      },
+      { onDelete: "cascade" },
+    ),
+  date: timestamp().notNull(),
+  points: doublePrecision("points").default(0.0),
+  rebounds: doublePrecision("rebounds").default(0.0),
+  assists: doublePrecision("assists").default(0.0),
+  steals: doublePrecision("steals").default(0.0),
+});
+
 // 3. Cards (The Ownership Link)
 export const cardsTable = pgTable(
   "cardsTable",

@@ -1,8 +1,10 @@
-import { playersTable } from "@/db/schema";
-import { createInsertSchema } from "drizzle-zod";
+import { gamesTable, playersTable } from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import z from "zod";
 
-export const TeamSchema = z.object({
+/* BallDontLie API Types */
+export const BdlTeamSchema = z.object({
   id: z.number(),
   conference: z.string(),
   division: z.string(),
@@ -11,10 +13,15 @@ export const TeamSchema = z.object({
   full_name: z.string(),
   abbreviation: z.string(),
 });
+export type BdlTeamData = z.infer<typeof BdlTeamSchema>;
 
-export type TeamData = z.infer<typeof TeamSchema>;
+export const BdlGameSchema = z.object({
+  id: z.number(),
+  date: z.string(),
+});
+export type BdlGameData = z.infer<typeof BdlGameSchema>;
 
-export const PlayerSchema = z.object({
+export const BdlPlayerSchema = z.object({
   id: z.number(),
   first_name: z.string(),
   last_name: z.string(),
@@ -27,24 +34,49 @@ export const PlayerSchema = z.object({
   draft_year: z.number().nullable(),
   draft_round: z.number().nullable(),
   draft_number: z.number().nullable(),
-  team: TeamSchema,
+  team: BdlTeamSchema.optional(),
 });
+export type BdlPlayerData = z.infer<typeof BdlPlayerSchema>;
 
-export type PlayerData = z.infer<typeof PlayerSchema>;
+export const BdlPlayerStatsSchema = z.object({
+  id: z.number(),
+  pts: z.number().nullable(),
+  reb: z.number().nullable(),
+  ast: z.number().nullable(),
+  stl: z.number().nullable(),
+  player: BdlPlayerSchema,
+  game: BdlGameSchema,
+});
+export type BdlPlayerStatsData = z.infer<typeof BdlPlayerStatsSchema>;
 
-export const MetaSchema = z.object({
-  next_cursor: z.number().nullable(),
+export const BdlMetaSchema = z.object({
+  next_cursor: z.number().nullable().optional(),
   per_page: z.number(),
 });
+export type BdlMetaData = z.infer<typeof BdlMetaSchema>;
 
-export type MetaData = z.infer<typeof MetaSchema>;
-
-export const PlayersResponseSchema = z.object({
-  data: PlayerSchema.array(),
-  meta: MetaSchema,
+export const BdlPlayersResponseSchema = z.object({
+  data: BdlPlayerSchema.array(),
+  meta: BdlMetaSchema,
 });
+export type BdlPlayersResponse = z.infer<typeof BdlPlayersResponseSchema>;
 
-export type PlayersResponse = z.infer<typeof PlayersResponseSchema>;
+export const BdlPlayersStatsResponseSchema = z.object({
+  data: BdlPlayerStatsSchema.array(),
+  meta: BdlMetaSchema,
+});
+export type BdlPlayersStatsResponse = z.infer<
+  typeof BdlPlayersStatsResponseSchema
+>;
 
+/* Internal DB Types */
 export const PlayerInsertSchema = createInsertSchema(playersTable);
 export type PlayerInsert = z.infer<typeof PlayerInsertSchema>;
+
+export const GameInsertSchema = createInsertSchema(gamesTable);
+export type GameInsert = z.infer<typeof GameInsertSchema>;
+
+export type Player = InferSelectModel<typeof playersTable>;
+
+export const PlayerUpdateSchema = createUpdateSchema(playersTable);
+export type PlayerUpdate = z.infer<typeof PlayerUpdateSchema>;
