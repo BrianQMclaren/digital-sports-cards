@@ -3,6 +3,7 @@
 import { Player } from "@/lib/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface DraftPlayerProps {
   player: Player;
@@ -34,9 +35,9 @@ export default function DraftPlayer(props: DraftPlayerProps) {
   return (
     <div>
       <div>{props.player.firstName}</div>
-      <button disabled={isLoading} onClick={handleClick}>
+      <Button disabled={isLoading} onClick={handleClick}>
         {isLoading ? "Loading..." : "Draft"}
-      </button>
+      </Button>
     </div>
   );
 }

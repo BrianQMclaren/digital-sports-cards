@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import { ActionResponse, signInAction, SignInData } from "@/actions/auth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldGroup,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const initialFormData: SignInData = {
   email: "",
@@ -23,46 +32,54 @@ export default function SignInForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const response = await signInAction(formData);
-    console.log("Server response:", response);
     setResponse(response);
   };
 
+  const toFieldErrors = (errors?: string[]) =>
+    errors?.map((message) => ({ message }));
+
+  const errors = response?.success === false ? response.errors : undefined;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          placeholder="Email"
-          onChange={handleChange}
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.email?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleChange}
-        />
-      </div>
-      <ul>
-        {response?.success === false &&
-          response.errors?.password?.map((error, index) => {
-            return <li key={index}>{error}</li>;
-          })}
-      </ul>
-      <button type="submit">Sign In</button>
-    </form>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Sign In</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FieldGroup>
+            <Field data-invalid={!!errors?.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                placeholder="you@example.com"
+                onChange={handleChange}
+                aria-invalid={!!errors?.email}
+              />
+              <FieldError errors={toFieldErrors(errors?.email)} />
+            </Field>
+          </FieldGroup>
+          <Field data-invalid={!!errors?.password}>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              aria-invalid={!!errors?.password}
+            />
+            <FieldError errors={toFieldErrors(errors?.password)} />
+          </Field>
+          <Button className="w-full" type="submit">
+            Sign In
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

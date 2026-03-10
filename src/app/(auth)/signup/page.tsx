@@ -2,6 +2,15 @@
 
 import { ActionResponse, signUpAction, SignUpData } from "@/actions/auth";
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldGroup,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const initialFormData: SignUpData = {
   firstName: "",
@@ -26,95 +35,98 @@ export default function SignUpForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const response = await signUpAction(formData);
-    console.log("Server response:", response);
     setResponse(response);
   };
+
+  const toFieldErrors = (errors?: string[]) =>
+    errors?.map((message) => ({ message }));
+
+  const errors = response?.success === false ? response.errors : undefined;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="firstName">First Name</label>
-        <input
-          id="firstName"
-          name="firstName"
-          type="text"
-          value={formData.firstName}
-          onChange={handleChange}
-          placeholder="Enter your first name"
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.firstName?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="lastName">Last Name</label>
-        <input
-          id="lastName"
-          name="lastName"
-          type="text"
-          value={formData.lastName}
-          onChange={handleChange}
-          placeholder="Enter your last name"
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.lastName?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="username">UserName</label>
-        <input
-          id="username"
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.username?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          placeholder="Email"
-          onChange={handleChange}
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.email?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleChange}
-        />
-        <ul>
-          {response?.success === false &&
-            response.errors?.password?.map((error, index) => {
-              return <li key={index}>{error}</li>;
-            })}
-        </ul>
-      </div>
-      <button type="submit">Sign Up</button>
-    </form>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Sign Up</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FieldGroup>
+            <Field data-invalid={!!errors?.firstName}>
+              <FieldLabel htmlFor="firstName">First Name</FieldLabel>
+              <Input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Enter your first name"
+                aria-invalid={!!errors?.firstName}
+              />
+              <FieldError errors={toFieldErrors(errors?.firstName)} />
+            </Field>
+
+            <Field data-invalid={!!errors?.lastName}>
+              <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+              <Input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Enter your last name"
+                aria-invalid={!!errors?.lastName}
+              />
+              <FieldError errors={toFieldErrors(errors?.lastName)} />
+            </Field>
+
+            <Field data-invalid={!!errors?.username}>
+              <FieldLabel htmlFor="username">UserName</FieldLabel>
+              <Input
+                id="username"
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Enter a username"
+                aria-invalid={!!errors?.username}
+              />
+              <FieldError errors={toFieldErrors(errors?.username)} />
+            </Field>
+
+            <Field data-invalid={!!errors?.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                placeholder="you@example.com"
+                onChange={handleChange}
+                aria-invalid={!!errors?.email}
+              />
+              <FieldError errors={toFieldErrors(errors?.email)} />
+            </Field>
+
+            <Field data-invalid={!!errors?.password}>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                placeholder="••••••••"
+                onChange={handleChange}
+                aria-invalid={!!errors?.password}
+              />
+              <FieldError errors={toFieldErrors(errors?.password)} />
+            </Field>
+          </FieldGroup>
+
+          <Button type="submit" className="w-full">
+            Sign Up
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
