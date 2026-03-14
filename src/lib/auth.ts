@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import * as jose from "jose";
 
+if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not set");
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const JWT_EXPIRATION = "7d"; // Token expires in 7 days
 const COOKIE_NAME = "auth_token";

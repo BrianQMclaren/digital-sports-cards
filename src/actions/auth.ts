@@ -115,7 +115,7 @@ export async function signUpAction(
     return {
       success: false,
       message: "User with this username already exists",
-      errors: { email: ["User with this username already exists"] },
+      errors: { username: ["User with this username already exists"] },
     };
   }
 
@@ -140,7 +140,7 @@ export async function signUpAction(
     };
   }
 
-  await setAuthCookie(user);
+  await setAuthCookie(String(user));
   redirect("/dashboard");
 }
 
