@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+import { signOut } from "@/actions/auth";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +18,7 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto relative">
         {/* Top Header / Stats Ticker */}
-        <header className="h-16 border-b border-white/10 flex items-center px-8 bg-black/40 backdrop-blur-md sticky top-0 z-20">
+        <header className="h-16 border-b border-white/10 flex justify-between items-center px-8 bg-black/40 backdrop-blur-md sticky top-0 z-20">
           <div className="flex gap-8 text-sm font-mono text-gray-400">
             <span className="text-stat-green">LIVE: LAL +2.5</span>
             <span>NYK -1.0</span>
@@ -25,6 +26,11 @@ export default function DashboardLayout({
               MARKET OPEN
             </span>
           </div>
+          <form action={signOut}>
+            <button className="cursor-pointer" type="submit">
+              Sign out
+            </button>
+          </form>
         </header>
         <div className="p-8">{children}</div>
       </main>
