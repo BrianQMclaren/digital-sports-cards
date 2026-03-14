@@ -7,6 +7,7 @@
   --color-ignite-orange: oklch(0.65 0.22 35);
   --color-courtside-black: oklch(0.04 0 0);
   --color-stat-green: oklch(0.75 0.2 145);
+  --color-destructive: oklch(0.6 0.22 25);
 
   /* 2. Custom Font Stack Mapping */
   --font-sans:
@@ -23,6 +24,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-panel: var(--panel);
 
   --radius-md: 0.625rem;
 }
@@ -31,13 +33,15 @@
   /* Forcing the War Room aesthetic as the default */
   --background: oklch(0.04 0 0); /* Courtside Black */
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.04 0 0);
+  --card: oklch(0.15 0 0);
   --card-foreground: oklch(0.985 0 0);
   --primary: oklch(0.65 0.22 35); /* Ignite Orange */
   --primary-foreground: oklch(0.04 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.65 0.22 35);
+  --destructive: oklch(0.55 0.22 25);
+  --panel: oklch(0.18 0 0);
 }
 
 @layer base {

@@ -41,47 +41,45 @@ export default function SignInForm() {
   const errors = response?.success === false ? response.errors : undefined;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-courtside-black px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <FieldGroup>
-              <Field data-invalid={!!errors?.email}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  placeholder="you@example.com"
-                  onChange={handleChange}
-                  aria-invalid={!!errors?.email}
-                />
-                <FieldError errors={toFieldErrors(errors?.email)} />
-              </Field>
-            </FieldGroup>
-            <Field data-invalid={!!errors?.password}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Sign In</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FieldGroup>
+            <Field data-invalid={!!errors?.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                placeholder="you@example.com"
                 onChange={handleChange}
-                aria-invalid={!!errors?.password}
+                aria-invalid={!!errors?.email}
               />
-              <FieldError errors={toFieldErrors(errors?.password)} />
+              <FieldError errors={toFieldErrors(errors?.email)} />
             </Field>
-            <Button className="w-full" type="submit">
-              Sign In
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </main>
+          </FieldGroup>
+          <Field data-invalid={!!errors?.password}>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              aria-invalid={!!errors?.password}
+            />
+            <FieldError errors={toFieldErrors(errors?.password)} />
+          </Field>
+          <Button className="w-full" type="submit">
+            Sign In
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
