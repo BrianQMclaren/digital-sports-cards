@@ -4,7 +4,7 @@ import { verifyJWT } from "@/lib/auth";
 const protectedRoutes = ["/dashboard"];
 const authRoutes = ["/signin", "/signup"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value;
   const payload = token ? await verifyJWT(token) : null;
   const { pathname } = req.nextUrl;
