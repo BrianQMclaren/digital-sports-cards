@@ -9,25 +9,20 @@ import { redirect } from "next/navigation";
 export default async function Dashboard() {
   const user = await getCurrentUser();
   if (!user) redirect("/signin");
-
   const cards = await getCardsForUser(user.id);
 
   return (
     <div className="space-y-10">
       {/* Welcome Header */}
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="font-sans text-3xl font-black uppercase tracking-tighter text-white">
-            Welcome back,{" "}
-            <span className="text-ignite-orange">{user.firstName}</span>
-          </h1>
+      <div className="flex justify-between flex-col m">
+        <div className="mb-4">
           <p className="text-gray-500 font-medium">
             Market is open. Build your portfolio.
           </p>
         </div>
         <Button
           asChild
-          className="bg-ignite-orange hover:bg-orange-600 text-courtside-black font-bold"
+          className="bg-ignite-orange hover:bg-orange-600 text-courtside-black font-bold md:mx-auto"
         >
           <Link href="/draft">
             Go to Draft <ArrowUpRight className="ml-2 size-4" />
