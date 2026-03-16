@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import avatar from "../../public/player-avatar.png";
+import { CardGlow } from "@/components/ui/card-glow";
 
 export default function LandingPage() {
   return (
@@ -30,16 +31,23 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Visual Anchor */}
-        <div className="flex-1 shadow-2xl">
-          <Image
-            src={avatar}
-            alt="player avatar"
-            width={400}
-            height={400}
-            sizes="(max-width: 768px) 100vw, (max-width: 900px) 50vw, 33vw"
-          />
-        </div>
+        <CardGlow
+          heatScore={92}
+          color="from-cyan-400 via-blue-500 to-indigo-600"
+        >
+          {/* Added 'w-[400px]' and 'aspect-[2/3]' to give the 'fill' image a workspace */}
+          <div className="relative w-[400px] aspect-[2/3] overflow-hidden rounded-[2.5rem]">
+            <Image
+              src={avatar}
+              alt="basketball player avatar"
+              fill
+              className="object-cover"
+              priority
+              /* This tells Next.js to optimize for a 400px wide card */
+              sizes="(max-width: 768px) 100vw, 400px"
+            />
+          </div>
+        </CardGlow>
       </section>
     </main>
   );
