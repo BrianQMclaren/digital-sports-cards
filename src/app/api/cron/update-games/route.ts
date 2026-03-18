@@ -4,14 +4,24 @@ import db from "@/db";
 import { getAllPlayers } from "@/lib/dal";
 import { GameInsert, PlayerUpdate } from "@/lib/types";
 import { gamesTable, playersTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
+import {
+  calculateCurrentPrice,
+  calculateHeatScore,
+} from "@/lib/calculateStats";
 
 export async function GET(req: NextRequest) {
+  const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
+
+  if (authToken !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const players = await getAllPlayers();
     const playerIds = players.map((player) => player.ballDontLieId);
     const playerStats = await fetchPlayerStats(playerIds);
-    const stats: GameInsert[] = playerStats.data.map((playerStat) => {
+    const stats: GameInsert[] = playerStats.map((playerStat) => {
       const player = players.find(
         (player) => player.ballDontLieId === playerStat.player.id,
       );
@@ -30,8 +40,7 @@ export async function GET(req: NextRequest) {
       return insert;
     });
     await db.insert(gamesTable).values(stats).onConflictDoNothing();
-    for (const playerStat of playerStats.data) {
-      console.log(playerStat);
+    for (const playerStat of playerStats) {
       const playerCondition = eq(
         playersTable.ballDontLieId,
         playerStat.player.id,
@@ -42,12 +51,24 @@ export async function GET(req: NextRequest) {
       if (!player) {
         throw new Error(`${playerStat.id} not found`);
       }
+
+      const gameCondition = eq(gamesTable.playerId, player.id);
+      const fetchGames = await db.query.gamesTable.findMany({
+        where: gameCondition,
+        limit: 5,
+        orderBy: [desc(gamesTable.date)],
+      });
+      const score = calculateHeatScore(fetchGames);
+      const price = calculateCurrentPrice(score);
+
       const update: PlayerUpdate = {
         pointsPerGame: playerStat.pts,
         reboundsPerGame: playerStat.reb,
         assistsPerGame: playerStat.ast,
         stealsPerGame: playerStat.stl,
-        gamesPlayed: 1,
+        gamesPlayed: fetchGames.length,
+        heatCheckScore: score,
+        currentPrice: price,
       };
 
       await db.update(playersTable).set(update).where(playerCondition);

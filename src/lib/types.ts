@@ -2,6 +2,7 @@ import { gamesTable, playersTable } from "@/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import z from "zod";
+import { getCardsForUser } from "@/lib/dal";
 
 /* BallDontLie API Types */
 export const BdlTeamSchema = z.object({
@@ -47,7 +48,7 @@ export const BdlPlayerStatsSchema = z.object({
   player: BdlPlayerSchema,
   game: BdlGameSchema,
 });
-export type BdlPlayerStatsData = z.infer<typeof BdlPlayerStatsSchema>;
+export type BdlPlayerStats = z.infer<typeof BdlPlayerStatsSchema>;
 
 export const BdlMetaSchema = z.object({
   next_cursor: z.number().nullable().optional(),
@@ -77,6 +78,9 @@ export const GameInsertSchema = createInsertSchema(gamesTable);
 export type GameInsert = z.infer<typeof GameInsertSchema>;
 
 export type Player = InferSelectModel<typeof playersTable>;
+export type Game = InferSelectModel<typeof gamesTable>;
 
 export const PlayerUpdateSchema = createUpdateSchema(playersTable);
 export type PlayerUpdate = z.infer<typeof PlayerUpdateSchema>;
+
+export type UserCard = Awaited<ReturnType<typeof getCardsForUser>>[number];

@@ -1,36 +1,55 @@
-import {
-  BdlPlayersStatsResponseSchema,
-  BdlPlayersStatsResponse,
-} from "@/lib/types";
+import { BdlPlayersStatsResponseSchema, BdlPlayerStats } from "@/lib/types";
 
 export async function fetchPlayerStats(
   playerIds: number[],
-): Promise<BdlPlayersStatsResponse> {
+): Promise<BdlPlayerStats[]> {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const date = yesterday.toISOString().slice(0, 10);
 
   const params = new URLSearchParams();
-  playerIds.forEach((id) => {
-    params.append("player_ids[]", id.toString());
-  });
+  playerIds.forEach((id) => params.append("player_ids[]", id.toString()));
   params.append("dates[]", date);
+  params.append("per_page", "100"); // Max out per_page to reduce total requests
 
   const key = process.env.BALLDONTLIE_API_KEY;
   if (!key) throw new Error("Missing BALLDONTLIE_API_KEY");
   const headers = { Authorization: key };
-  const init = { headers };
-  const response = await fetch(
-    `https://api.balldontlie.io/v1/stats?${params.toString()}`,
-    init,
-  );
-  if (!response.ok)
-    throw new Error(
-      `Players stats fetch failed: ${response.status} ${response.statusText}`,
+
+  const results: BdlPlayerStats[] = [];
+  let nextCursor: number | null | undefined = undefined; // undefined = first request, don't send cursor param yet
+
+  while (true) {
+    if (nextCursor !== undefined) {
+      params.set("cursor", String(nextCursor));
+    }
+
+    const url = `https://api.balldontlie.io/v1/stats?${params.toString()}`;
+    console.log("Fetching URL:", url);
+
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(
+        `Players stats fetch failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const data = await response.json();
+    const pageResult = BdlPlayersStatsResponseSchema.parse(data);
+    results.push(...pageResult.data);
+
+    console.log(
+      `Got ${pageResult.data.length} results. next_cursor: ${pageResult.meta.next_cursor}`,
     );
-  const data = await response.json();
-  return BdlPlayersStatsResponseSchema.parse(data);
+
+    if (!pageResult.meta.next_cursor) {
+      break;
+    }
+
+    nextCursor = pageResult.meta.next_cursor;
+  }
+  return results;
 }
 
 /*
