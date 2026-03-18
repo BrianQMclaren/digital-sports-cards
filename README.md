@@ -11,22 +11,4 @@ Secure Infrastructure: Robust custom authentication using Argon2id and atomic da
 
 Live Insights: AI-generated performance context to help users make smarter trades.
 
-## Tech Stack
-
-- Next.js
-- TypeScript
-- BallDontLie API
-- Neon Serverless (Drizzle)
-- JWT
-- Zod
-- Tailwind CSS
-- shadcn/ui
-- Vercel Deployment
-
-## Roadmap
-
-- Player search
-- Real-time stat updates
-- “Card Collection” view
-- AI insights (OpenAI)
-- Player comparison mode
+Cron job to gather latest game stats runs at 10am UTC every day (so roughly 5-6am EST, after most games have finished).
