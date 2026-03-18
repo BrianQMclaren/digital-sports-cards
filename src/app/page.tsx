@@ -35,16 +35,14 @@ export default function LandingPage() {
           heatScore={92}
           color="from-cyan-400 via-blue-500 to-indigo-600"
         >
-          {/* Added 'w-[400px]' and 'aspect-[2/3]' to give the 'fill' image a workspace */}
-          <div className="relative w-[400px] aspect-[2/3] overflow-hidden rounded-[2.5rem]">
+          <div className="relative w-[350px] aspect-[2/3] overflow-hidden rounded-[2.5rem]">
             <Image
               src={avatar}
               alt="basketball player avatar"
               fill
               className="object-cover"
               priority
-              /* This tells Next.js to optimize for a 400px wide card */
-              sizes="(max-width: 768px) 100vw, 400px"
+              sizes="(max-width: 768px) 100vw, 350px"
             />
           </div>
         </CardGlow>
