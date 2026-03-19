@@ -80,7 +80,7 @@ export default function SignUpForm() {
             </Field>
 
             <Field data-invalid={!!errors?.username}>
-              <FieldLabel htmlFor="username">UserName</FieldLabel>
+              <FieldLabel htmlFor="username">User Name</FieldLabel>
               <Input
                 id="username"
                 type="text"
