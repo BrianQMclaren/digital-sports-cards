@@ -3,15 +3,20 @@ import { fetchPlayers } from "@/actions/players";
 import { playersTable } from "@/db/schema";
 import db from "@/db";
 import { PlayerInsert } from "@/lib/types";
+import { sql } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
-  let length = 100;
+  const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
+  if (authToken !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let cursor = 0;
-  while (length > 0) {
+  while (true) {
     const players = await fetchPlayers(cursor);
-    cursor = players.meta.next_cursor ?? 0;
-    length = players.data.length;
-    console.log(`Fetched ${length} players, next cursor: ${cursor}`);
+    console.log(
+      `Fetched ${players.data.length} players, next cursor: ${players.meta.next_cursor}`,
+    );
     const values: PlayerInsert[] = players.data.map((player) => {
       const insert: PlayerInsert = {
         ballDontLieId: player.id,
@@ -21,8 +26,21 @@ export async function GET(req: NextRequest) {
       };
       return insert;
     });
-    await db.insert(playersTable).values(values);
-    await new Promise((resolve) => setTimeout(resolve, 15000)); // Throttle requests to avoid hitting rate limits
+    await db
+      .insert(playersTable)
+      .values(values)
+      .onConflictDoUpdate({
+        target: playersTable.ballDontLieId,
+        set: {
+          firstName: sql`excluded.first_name`,
+          lastName: sql`excluded.last_name`,
+          sport: "NBA",
+        },
+      });
+    if (!players.meta.next_cursor) {
+      break;
+    }
+    cursor = players.meta.next_cursor;
   }
   return NextResponse.json({ success: true });
 }

@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/load-players",
+      "schedule": "50 9 * * *"
+    },
+    {
       "path": "/api/cron/update-games",
       "schedule": "0 10 * * *"
     }
