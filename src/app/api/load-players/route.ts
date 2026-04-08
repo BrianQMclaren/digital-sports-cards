@@ -3,7 +3,6 @@ import { fetchPlayers } from "@/actions/players";
 import { playersTable } from "@/db/schema";
 import db from "@/db";
 import { PlayerInsert } from "@/lib/types";
-import { sql } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -26,17 +25,7 @@ export async function GET(req: NextRequest) {
       };
       return insert;
     });
-    await db
-      .insert(playersTable)
-      .values(values)
-      .onConflictDoUpdate({
-        target: playersTable.ballDontLieId,
-        set: {
-          firstName: sql`excluded.first_name`,
-          lastName: sql`excluded.last_name`,
-          sport: "NBA",
-        },
-      });
+    await db.insert(playersTable).values(values).onConflictDoNothing();
     if (!players.meta.next_cursor) {
       break;
     }

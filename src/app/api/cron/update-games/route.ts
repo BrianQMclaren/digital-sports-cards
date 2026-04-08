@@ -4,11 +4,12 @@ import db from "@/db";
 import { getAllPlayers } from "@/lib/dal";
 import { GameInsert, PlayerUpdate } from "@/lib/types";
 import { gamesTable, playersTable } from "@/db/schema";
-import { desc, eq, inArray } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   calculateCurrentPrice,
   calculateHeatScore,
 } from "@/lib/calculateStats";
+import { getAverage } from "@/lib/getAverage";
 
 export async function GET(req: NextRequest) {
   const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -48,11 +49,29 @@ export async function GET(req: NextRequest) {
     // 2. Filter games in memory using .filter()
     // 3. Hit the DB to update their stats
 
-    const internalPlayerIds = players.map((player) => player.id);
-    const getRecentPlayerGames = await db.query.gamesTable.findMany({
-      where: inArray(gamesTable.playerId, internalPlayerIds),
-      orderBy: [desc(gamesTable.date)],
-    });
+    const ranked = db
+      .select({
+        // spread all columns
+        id: gamesTable.id,
+        playerId: gamesTable.playerId,
+        ballDontLieId: gamesTable.ballDontLieId,
+        date: gamesTable.date,
+        points: gamesTable.points,
+        rebounds: gamesTable.rebounds,
+        assists: gamesTable.assists,
+        steals: gamesTable.steals,
+        rn: sql<number>`ROW_NUMBER() OVER (
+      PARTITION BY ${gamesTable.playerId}
+      ORDER BY ${gamesTable.date} DESC
+    )`.as("rn"),
+      })
+      .from(gamesTable)
+      .as("ranked");
+
+    const recentPlayerGames = await db
+      .select()
+      .from(ranked)
+      .where(sql`${ranked.rn} <= 5`);
 
     for (const playerStat of playerStats) {
       // Find the player first
@@ -64,18 +83,44 @@ export async function GET(req: NextRequest) {
         throw new Error(`${playerStat.id} not found`);
       }
       // Filter a recent player games to get only the last 5 games for the current player
-      const playerGames = getRecentPlayerGames
-        .filter((game) => game.playerId === player.id)
-        .slice(0, 5);
+      const playerGames = recentPlayerGames.filter(
+        (game) => game.playerId === player.id,
+      );
 
-      const score = calculateHeatScore(playerGames);
+      const slicedGames = playerGames.slice(0, 5);
+
+      const score = calculateHeatScore(slicedGames);
       const price = calculateCurrentPrice(score);
 
+      // Replace the last game stats with average stats from the last 5 games
+      const gamePoints = slicedGames.map((game) => {
+        const pts = game.points ?? 0;
+        return pts;
+      });
+
+      const gameRebounds = slicedGames.map((game) => {
+        const rebs = game.rebounds ?? 0;
+        return rebs;
+      });
+      const gameAssists = slicedGames.map((game) => {
+        const assists = game.assists ?? 0;
+        return assists;
+      });
+      const gameSteals = slicedGames.map((game) => {
+        const steals = game.steals ?? 0;
+        return steals;
+      });
+
+      const averagePoints = getAverage(gamePoints);
+      const averageRebounds = getAverage(gameRebounds);
+      const averageAssists = getAverage(gameAssists);
+      const averageSteals = getAverage(gameSteals);
+
       const update: PlayerUpdate = {
-        pointsPerGame: playerStat.pts,
-        reboundsPerGame: playerStat.reb,
-        assistsPerGame: playerStat.ast,
-        stealsPerGame: playerStat.stl,
+        pointsPerGame: averagePoints,
+        reboundsPerGame: averageRebounds,
+        assistsPerGame: averageAssists,
+        stealsPerGame: averageSteals,
         gamesPlayed: playerGames.length,
         heatCheckScore: score,
         currentPrice: price,
@@ -89,10 +134,10 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(
-      "Error getting player stats:",
-      error instanceof Error ? error.message : error,
-    );
+    if (!(error instanceof Error)) {
+      throw error;
+    }
+    console.error("Error getting player stats:", error.message, error.stack);
     return NextResponse.json(
       { error: "Failed to update games" },
       { status: 500 },
