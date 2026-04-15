@@ -41,6 +41,7 @@ export type BdlPlayerData = z.infer<typeof BdlPlayerSchema>;
 
 export const BdlPlayerStatsSchema = z.object({
   id: z.number(),
+  min: z.number(),
   pts: z.number().nullable(),
   reb: z.number().nullable(),
   ast: z.number().nullable(),
