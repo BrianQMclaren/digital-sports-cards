@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const playerIds = players.map((player) => player.ballDontLieId);
     const playerStats = await fetchPlayerStats(playerIds);
     const playerStatsMoreThan0Mins = playerStats.filter(
-      (stats) => stats.min > 0,
+      (stats) => parseFloat(stats.min) > 0,
     );
     const stats: GameInsert[] = playerStatsMoreThan0Mins.map((playerStat) => {
       const player = players.find(
