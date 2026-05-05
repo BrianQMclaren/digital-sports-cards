@@ -39,7 +39,7 @@ export const playersTable = pgTable("playersTable", {
   gamesPlayed: integer("games_played").default(0),
 
   // Dynamic Valuation & AI Insights
-  heatCheckScore: doublePrecision("heat_check_score").default(50.0),
+  heatCheckScore: doublePrecision("heat_check_score").notNull().default(50.0),
   currentPrice: doublePrecision("current_price").notNull().default(0.0),
   latestInsight: text("latest_insight"),
   performanceContext: jsonb("performance_context"), // Detailed game logs

@@ -32,3 +32,56 @@ export function calculateCurrentPrice(heatScore: number): number {
   // Card price should never go below 50
   return Math.max(basePrice * (heatScore / 50), 50);
 }
+
+export type HeatTier = "cold" | "neutral" | "hot";
+
+export const HEAT_TIER_CONFIG: Record<
+  HeatTier,
+  {
+    label: string;
+    badgeColor: string;
+    textColor: string;
+  }
+> = {
+  cold: {
+    label: "COLD",
+    badgeColor: "bg-slate-700",
+    textColor: "text-slate-300",
+  },
+  neutral: {
+    label: "NEUTRAL",
+    badgeColor: "bg-gray-600",
+    textColor: "text-gray-200",
+  },
+  hot: {
+    label: "SURGING",
+    badgeColor: "bg-orange-600",
+    textColor: "text-white",
+  },
+};
+
+export function getHeatTier(score: number): HeatTier {
+  if (score >= 60) return "hot";
+  if (score >= 40) return "neutral";
+  return "cold";
+}
+
+export function calculateProfitValue(
+  currentPrice: number,
+  buyPrice: number,
+): number {
+  const profitValue = currentPrice - buyPrice;
+  return profitValue;
+}
+
+export function isProfit(profitValue: number): boolean {
+  const profit = profitValue > 0;
+  return profit;
+}
+
+export function calculateROIPercent(
+  currentPrice: number,
+  buyPrice: number,
+): number {
+  return ((currentPrice - buyPrice) / buyPrice) * 100;
+}
