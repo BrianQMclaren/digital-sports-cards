@@ -22,16 +22,39 @@ export const getCardsForUser = async (userId: string) => {
   const cards = await db
     .select({
       id: cardsTable.id,
+      ballDontLieId: playersTable.ballDontLieId,
       buyPrice: cardsTable.buyPrice,
       firstName: playersTable.firstName,
       lastName: playersTable.lastName,
-      heatScore: playersTable.heatCheckScore,
+      pointsPerGame: playersTable.pointsPerGame,
+      reboundsPerGame: playersTable.reboundsPerGame,
+      assistsPerGame: playersTable.assistsPerGame,
+      stealsPerGame: playersTable.stealsPerGame,
+      heatCheckScore: playersTable.heatCheckScore,
       currentPrice: playersTable.currentPrice,
     })
     .from(cardsTable)
     .innerJoin(playersTable, eq(cardsTable.playerId, playersTable.id))
     .where(eq(cardsTable.userId, userId));
   return cards;
+};
+
+export const getMarketPlayers = async () => {
+  const players = await db
+    .select({
+      id: playersTable.id,
+      ballDontLieId: playersTable.ballDontLieId,
+      firstName: playersTable.firstName,
+      lastName: playersTable.lastName,
+      pointsPerGame: playersTable.pointsPerGame,
+      reboundsPerGame: playersTable.reboundsPerGame,
+      assistsPerGame: playersTable.assistsPerGame,
+      stealsPerGame: playersTable.stealsPerGame,
+      heatCheckScore: playersTable.heatCheckScore,
+      currentPrice: playersTable.currentPrice,
+    })
+    .from(playersTable);
+  return players;
 };
 
 export const getAllPlayers = async () => {
