@@ -25,6 +25,7 @@
 *.pem
 .vscode
 .idea
+.remember
 
 # debug
 npm-debug.log*
