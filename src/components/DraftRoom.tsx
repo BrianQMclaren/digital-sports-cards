@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Player } from "@/lib/types";
+import { Input } from "@/components/ui/input";
 import DraftPlayer from "@/components/DraftPlayer";
 
 interface DraftRoomProps {
@@ -24,12 +25,13 @@ export default function DraftRoom({ players }: DraftRoomProps) {
     <>
       <div className="relative mb-10 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500 pointer-events-none" />
-        <input
+        <Input
           type="search"
+          aria-label="Search players"
           placeholder="Search players..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 outline-none focus:border-white/20 focus:bg-white/[0.05] transition-colors"
+          className="h-10 rounded-xl border-white/10 bg-white/[0.03] dark:bg-white/[0.03] pl-10 pr-4 text-white placeholder:text-gray-600"
         />
       </div>
 
