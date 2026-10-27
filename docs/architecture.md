@@ -1,81 +1,93 @@
 # 🏀 HeatCheck: System Design & Architecture
 
-Status: MVP (60% Complete)
+Status: MVP in progress
+
+## What's Built
+
+- Sign up, sign in, sign out (custom JWT auth)
+- Landing page
+- Dashboard: user's holdings with current price, Heat Score, tier badge, and ROI
+- Draft Room: list of all players, draft a card at current price
+- Nightly data sync: player roster + game stats, Heat Score and price recalculation
+
+## Not Built Yet
+
+- Balance checks on draft (drafting does not deduct `virtualBalance` yet)
+- Selling cards
+- Player search
+- AI insights (`latestInsight` column exists but is unused)
+- Comparison mode
+- List virtualization
 
 ## Tech Stack Overview
 
-### Core Tech Stack
+- Framework: Next.js 16 (App Router), React 19.2, React Compiler
+- Database: PostgreSQL on Neon (serverless HTTP driver)
+- ORM: Drizzle ORM + drizzle-zod
+- Validation: Zod 4
+- Authentication: Custom JWT with jose, httpOnly cookie, argon2 password hashing
+- UI: shadcn/ui, Radix UI, Tailwind CSS v4, Framer Motion, lucide-react
+- Automation: Vercel Cron Jobs
+- Data source: BallDontLie API
 
-- Framework: Next.js 16 (App Router)
-- Database: PostgreSQL (via Neon Serverless)
-- ORM: Drizzle ORM (Type-safe SQL)
-- Authentication: Custom JWT-based Auth using jose and httpOnly cookies.
-- UI/UX: Shadcn/UI, Radix UI, Tailwind CSS, and Framer Motion.
-- Automation: Vercel Cron Jobs for data synchronization.
+## Database Design
 
-### Database Design (Drizzle-Zod)
+- **usersTable:** Identity, argon2 password hash, and virtual balance (default 1,000).
+- **playersTable:** Source of truth for each athlete: rolling stat averages, Heat Score, current price. `performanceContext` (jsonb) and `latestInsight` are reserved for future AI features.
+- **gamesTable:** One row per player per game (points, rebounds, assists, steals). Indexed on player + date for fast "last 5 games" lookups. This is the dataset for future AI trend analysis.
+- **cardsTable:** Links users to players. Stores `buyPrice` to calculate ROI against the player's current price. One card per user per player.
 
-Structured for relational integrity and future AI-driven analytics.
+## Heat Score & Pricing
 
-- usersTable: Manages authentication, identity, and virtual currency balances.
-- playersTable: The "Source of Truth." Uses a jsonb field for flexible performance context.
-- cardsTable: A junction table linking Users and Players. Tracks buyPrice to calculate real-time ROI.
-- gamesTable: Historical logs that serve as the dataset for future AI trend analysis.
+Defined in `src/lib/calculateStats.ts`.
 
-### Architectural Decisions ("The Why")
+- **Per-game raw score:** `pts × 1.0 + reb × 0.8 + ast × 0.8 + stl × 1.2`
+- **Heat Score:** Average raw score over the last 5 games, divided by a baseline of 17, times 50. A score of 50 represents an average NBA player.
+- **Price:** `250 × (Heat Score / 50)`, with a floor of 50.
+- **Tiers:** 60+ is "Surging", 40 to 59 is "Neutral", below 40 is "Cold".
 
-#### Server-First Architecture (Server Actions)
+The baseline of 17 is an estimate and will be recalibrated once there's enough game data.
 
-Centralized all business logic and DB mutations within Next.js Server Actions.
+## Architectural Decisions ("The Why")
 
-**Why**: This significantly reduces the Client-side JS bundle and removes the overhead of maintaining a separate REST API layer. By keeping mutations on the server, I ensure sensitive database logic is never exposed to the client.
+### Server-First Data Flow
 
-#### Drizzle ORM vs. Prisma
+Pages are Server Components that read through a data access layer (`src/lib/dal.ts`). Auth mutations use Server Actions. Drafting uses a route handler (`POST /api/draft-player`).
+
+**Why:** Keeping reads and writes on the server keeps the client bundle small and keeps DB access in one place. Every Server Action and route handler is still a public endpoint, so each one checks auth and validates input on its own.
+
+### Drizzle ORM vs. Prisma
 
 Migrated from Prisma to Drizzle ORM.
 
-**Why**: In a serverless environment (Vercel), cold starts are a major bottleneck. Drizzle has zero dependencies and no heavy Rust-binary overhead. It allows me to write type-safe SQL queries that handle complex relational joins (e.g., playersTable to gamesTable) with near-zero latency.
+**Why:** Drizzle is lightweight, which helps with cold starts on Vercel, and lets me write type-safe SQL, including window functions like the `ROW_NUMBER()` query that pulls each player's last 5 games in one round trip.
 
-#### Hand-Rolled Security (Custom JWT)
+### Custom JWT Auth
 
-Avoided 3rd-party "black box" auth for a custom jose implementation.
+Built on jose instead of a third-party auth provider.
 
-**Why**: I wanted full control over the session lifecycle. By using httpOnly, secure, and SameSite: Strict cookies, the app is natively protected against XSS and CSRF attacks, ensuring high-security standards for a trading platform.
+**Why:** Full control over the session lifecycle and a chance to understand auth end to end. Passwords are hashed with argon2. Sessions are HS256 JWTs stored in an httpOnly cookie (secure in production) with a 7-day expiry. httpOnly keeps the token out of reach of client-side JavaScript. `src/proxy.ts` handles page-level redirects; API routes check auth individually.
 
-#### Automated Data Ingestion (Cron Jobs)
+**Known gaps:** No explicit `SameSite` setting (browsers default to Lax), no token revocation, no rate limiting on sign in.
 
-Nightly synchronization via Vercel Cron.
+### Automated Data Ingestion (Cron Jobs)
 
-**Why**: Real-time polling is expensive and unnecessary for daily stats. By scheduling a job at 10:00 AM UTC, the system fetches the latest data from the BallDontLie API, recalculates "HeatCheck Scores," and updates player valuations before the peak daily traffic.
+Two Vercel Cron jobs, both protected by a `CRON_SECRET` bearer token:
 
-### Performance & Optimization
+- **09:50 UTC, `/api/load-players`:** Pulls active players from BallDontLie and inserts any new ones.
+- **10:00 UTC, `/api/cron/update-games`:** Fetches the previous day's stat lines, stores games for players who logged minutes, then recalculates each player's averages, Heat Score, and price from their last 5 games.
 
-#### List Virtualization
+**Why:** Stats only change once a day, so a nightly batch is cheaper and simpler than polling. 10:00 UTC is roughly 5 to 6 AM ET, after games finish and before morning traffic.
 
-**Problem**: DOM lag when rendering 500+ athlete cards.
+## Accessibility
 
-**Solution**: Implementing virtualization to render only the components within the user's viewport, maintaining 60FPS scrolling.
-
-#### Database Branching
-
-**Feature**: Neon Database Branching.
-
-**Why**: I can instantly branch my production DB to a preview environment. This allows me to test destructive schema migrations or complex Cron scripts without risking production data.
-
-#### Accessibility-First UI
-
-**Tools**: Shadcn/UI & Radix UI.
-
-**Why**: These tools provide WCAG-compliant primitives (Cards, Inputs). This allows me to focus on the trading logic and data visualization while knowing the UI is accessible to all users.
+shadcn/ui and Radix provide accessible primitives, and player cards use `aria-label` and semantic `<dl>` stat lists. Custom visuals (card glow, animations) still need manual review, including `prefers-reduced-motion` support.
 
 ## Product Roadmap
 
-[ ] Player Search: Fuzzy search implementation via database indexing.
-
-[ ] Marketplace logic: Full Buy/Sell functionality with virtual balance validation.
-
-[ ] Real-time Stats: Integrating WebSockets for live-game stat tracking.
-
-[ ] AI Insights: Leveraging OpenAI to generate "Scouting Reports" based on gamesTable data.
-
-[ ] Comparison Mode: Side-by-side performance charting for athletes.
+- [ ] Marketplace: deduct balance on draft, validate affordability, add selling. Requires atomic writes, which the current `neon-http` driver doesn't support.
+- [ ] Player Search: fuzzy search with Postgres `pg_trgm`.
+- [ ] Comparison Mode: side-by-side performance charts.
+- [ ] AI Insights: generated scouting reports from `gamesTable` data.
+- [ ] List Virtualization: for the Draft Room as the player list grows.
+- [ ] Real-time Stats: live game tracking. Needs a non-serverless solution (e.g. Pusher, Ably) since Vercel functions can't hold WebSocket connections.
