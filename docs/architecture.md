@@ -6,6 +6,7 @@ Status: MVP in progress
 
 - Sign up, sign in, sign out (custom JWT auth)
 - Landing page
+- Draft Room player search (client-side, filters by name)
 - Dashboard: user's holdings with current price, Heat Score, tier badge, and ROI
 - Draft Room: list of all players, draft a card at current price
 - Nightly data sync: player roster + game stats, Heat Score and price recalculation
@@ -14,7 +15,6 @@ Status: MVP in progress
 
 - Balance checks on draft (drafting does not deduct `virtualBalance` yet)
 - Selling cards
-- Player search
 - AI insights (`latestInsight` column exists but is unused)
 - Comparison mode
 - List virtualization
@@ -86,7 +86,7 @@ shadcn/ui and Radix provide accessible primitives, and player cards use `aria-la
 ## Product Roadmap
 
 - [ ] Marketplace: deduct balance on draft, validate affordability, add selling. Requires atomic writes, which the current `neon-http` driver doesn't support.
-- [ ] Player Search: fuzzy search with Postgres `pg_trgm`.
+- [ ] Fuzzy Player Search: upgrade to typo-tolerant search with Postgres pg_trgm.
 - [ ] Comparison Mode: side-by-side performance charts.
 - [ ] AI Insights: generated scouting reports from `gamesTable` data.
 - [ ] List Virtualization: for the Draft Room as the player list grows.
