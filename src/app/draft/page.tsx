@@ -1,5 +1,5 @@
 import { getCurrentUser, getAllPlayers } from "@/lib/dal";
-import DraftPlayer from "@/components/DraftPlayer";
+import DraftRoom from "@/components/DraftRoom";
 import { redirect } from "next/navigation";
 
 export default async function Draft() {
@@ -18,11 +18,7 @@ export default async function Draft() {
           Build your legacy. Select players to join your exchange.
         </p>
       </header>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {players.map((player) => (
-          <DraftPlayer key={player.id} player={player} />
-        ))}
-      </div>
+      <DraftRoom players={players} />
     </div>
   );
 }
