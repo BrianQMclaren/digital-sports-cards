@@ -43,6 +43,7 @@ export async function POST(req: Request) {
 
   let result:
     | { status: "not_found" }
+    | { status: "unpriced" }
     | { status: "insufficient_funds" }
     | { status: "ok"; balance: number | null };
   try {
@@ -51,6 +52,8 @@ export async function POST(req: Request) {
         where: eq(playersTable.id, parsed.data.playerId),
       });
       if (!player) return { status: "not_found" as const };
+      // New players default to a price of 0 until the nightly cron prices them.
+      if (player.currentPrice <= 0) return { status: "unpriced" as const };
 
       // Conditional update: Postgres locks the row and re-checks the balance,
       // so concurrent drafts can't both pass the affordability check.
@@ -89,6 +92,12 @@ export async function POST(req: Request) {
 
   if (result.status === "not_found") {
     return NextResponse.json({ error: "Player not found" }, { status: 404 });
+  }
+  if (result.status === "unpriced") {
+    return NextResponse.json(
+      { error: "This player hasn't been priced yet" },
+      { status: 409 },
+    );
   }
   if (result.status === "insufficient_funds") {
     return NextResponse.json(
