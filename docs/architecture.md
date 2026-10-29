@@ -22,7 +22,7 @@ Status: MVP in progress
 ## Tech Stack Overview
 
 - Framework: Next.js 16 (App Router), React 19.2, React Compiler
-- Database: PostgreSQL on Neon (serverless HTTP driver)
+- Database: PostgreSQL on Neon (serverless WebSocket driver, supports transactions)
 - ORM: Drizzle ORM + drizzle-zod
 - Validation: Zod 4
 - Authentication: Custom JWT with jose, httpOnly cookie, argon2 password hashing

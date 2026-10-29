@@ -10,7 +10,7 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 
 - Next.js 16 (App Router), React 19.2, React Compiler enabled
 - TypeScript (strict), path alias `@/*` → `src/*`
-- PostgreSQL on Neon, Drizzle ORM via `drizzle-orm/neon-http`
+- PostgreSQL on Neon, Drizzle ORM via `drizzle-orm/neon-serverless` (WebSocket `Pool`)
 - Zod 4 + drizzle-zod for validation and DB types
 - Auth: custom JWT (jose, HS256, 7-day expiry) in an httpOnly `auth_token` cookie; passwords hashed with argon2
 - UI: Tailwind CSS v4, shadcn/ui (`radix-ui` package), lucide-react, Framer Motion
@@ -69,7 +69,7 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 ## Database Rules
 
 - Schema changes: edit `src/db/schema.ts`, then run `pnpm db:generate`. Never hand-edit or delete files in `drizzle/`.
-- The `neon-http` driver does not support `db.transaction()`. If a task needs multiple writes to succeed or fail together (e.g. deduct balance + create card), stop and flag it instead of writing non-atomic code.
+- Multiple writes that must succeed or fail together (e.g. deduct balance + create card) go in `db.transaction()`. Never split them into separate non-atomic writes.
 - Never run migrations against production.
 
 ## Env Vars (names only)
