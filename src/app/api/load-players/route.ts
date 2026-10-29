@@ -3,6 +3,11 @@ import { fetchPlayers } from "@/actions/players";
 import { playersTable } from "@/db/schema";
 import db from "@/db";
 import { PlayerInsert } from "@/lib/types";
+import { calculateCurrentPrice } from "@/lib/calculateStats";
+
+// New players start at the schema's default Heat Score of 50 (an average
+// player), so price them to match instead of the 0.0 column default.
+const STARTING_PRICE = calculateCurrentPrice(50);
 
 export async function GET(req: NextRequest) {
   const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -22,6 +27,7 @@ export async function GET(req: NextRequest) {
         firstName: player.first_name,
         lastName: player.last_name,
         sport: "NBA",
+        currentPrice: STARTING_PRICE,
       };
       return insert;
     });
