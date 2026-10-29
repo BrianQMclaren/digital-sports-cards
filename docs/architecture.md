@@ -45,6 +45,7 @@ Defined in `src/lib/calculateStats.ts`.
 - **Heat Score:** Average raw score over the last 5 games, divided by a baseline of 17, times 50. A score of 50 represents an average NBA player.
 - **Price:** `250 × (Heat Score / 50)`, with a floor of 50.
 - **Tiers:** 60+ is "Surging", 40 to 59 is "Neutral", below 40 is "Cold".
+- **New players:** start at a Heat Score of 50 and a price of $250 (set by `/api/load-players`) until their first game is recorded.
 
 The baseline of 17 is an estimate and will be recalibrated once there's enough game data.
 
