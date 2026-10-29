@@ -27,11 +27,19 @@ export default async function DashboardLayout({
             <div className="p-2 font-sans font-black text-xl text-white">
               HEAT<span className="text-ignite-orange">CHECK</span>
             </div>
-            <form action={signOut}>
-              <button className="cursor-pointer" type="submit">
-                Sign out
-              </button>
-            </form>
+            <div className="flex items-center gap-6">
+              <span className="font-mono text-sm text-gray-400">
+                Balance{" "}
+                <span className="font-black text-white">
+                  ${(user.virtualBalance ?? 0).toFixed(2)}
+                </span>
+              </span>
+              <form action={signOut}>
+                <button className="cursor-pointer" type="submit">
+                  Sign out
+                </button>
+              </form>
+            </div>
           </header>
           <div className="p-8">{children}</div>
         </main>

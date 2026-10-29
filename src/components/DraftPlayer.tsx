@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 
 interface DraftPlayerProps {
   player: Player;
+  balance: number;
 }
 
 export default function DraftPlayer(props: DraftPlayerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const isPriced = props.player.currentPrice > 0;
+  const canAfford = props.player.currentPrice <= props.balance;
 
   async function handleClick() {
     setError(null);
@@ -65,11 +68,17 @@ export default function DraftPlayer(props: DraftPlayerProps) {
         </p>
       ) : null}
       <Button
-        disabled={isLoading}
+        disabled={isLoading || !isPriced || !canAfford}
         onClick={handleClick}
         className="w-full bg-white text-black hover:bg-ignite-orange hover:text-white font-bold transition-colors"
       >
-        {isLoading ? "Processing..." : "Draft Player"}
+        {isLoading
+          ? "Processing..."
+          : !isPriced
+            ? "Not priced yet"
+            : canAfford
+              ? "Draft Player"
+              : "Insufficient funds"}
       </Button>
     </div>
   );

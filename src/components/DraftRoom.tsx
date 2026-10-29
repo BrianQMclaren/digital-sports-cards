@@ -8,9 +8,10 @@ import DraftPlayer from "@/components/DraftPlayer";
 
 interface DraftRoomProps {
   players: Player[];
+  balance: number;
 }
 
-export default function DraftRoom({ players }: DraftRoomProps) {
+export default function DraftRoom({ players, balance }: DraftRoomProps) {
   const [query, setQuery] = useState("");
 
   const filtered = query.trim()
@@ -42,7 +43,7 @@ export default function DraftRoom({ players }: DraftRoomProps) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((player) => (
-            <DraftPlayer key={player.id} player={player} />
+            <DraftPlayer key={player.id} player={player} balance={balance} />
           ))}
         </div>
       )}

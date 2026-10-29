@@ -7,6 +7,7 @@ export default async function Draft() {
   if (!user) redirect("/signin");
 
   const players = await getAllPlayers();
+  const balance = user.virtualBalance ?? 0;
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -17,8 +18,14 @@ export default async function Draft() {
         <p className="text-gray-500 mt-2 font-medium">
           Build your legacy. Select players to join your exchange.
         </p>
+        <p className="mt-4 font-mono text-sm text-gray-400">
+          Balance{" "}
+          <span className="text-lg font-black text-white tracking-tighter">
+            ${balance.toFixed(2)}
+          </span>
+        </p>
       </header>
-      <DraftRoom players={players} />
+      <DraftRoom players={players} balance={balance} />
     </div>
   );
 }
