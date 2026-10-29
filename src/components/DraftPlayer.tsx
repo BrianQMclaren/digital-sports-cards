@@ -11,22 +11,32 @@ interface DraftPlayerProps {
 
 export default function DraftPlayer(props: DraftPlayerProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleClick() {
+    setError(null);
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const res = await fetch("/api/draft-player/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerId: props.player.id }),
       });
 
-      if (res.ok) {
+      const data = (await res.json()) as {
+        success?: boolean;
+        error?: string;
+      };
+
+      if (res.ok && data.success === true) {
         router.push("/dashboard");
+        return;
       }
-    } catch (error) {
-      console.error("Player fetch failed");
+
+      setError(data.error ?? "Could not draft this player");
+    } catch {
+      setError("Could not draft this player");
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +59,11 @@ export default function DraftPlayer(props: DraftPlayerProps) {
           </span>
         </div>
       </div>
+      {error ? (
+        <p role="alert" className="mb-2 text-xs font-mono text-red-400">
+          {error}
+        </p>
+      ) : null}
       <Button
         disabled={isLoading}
         onClick={handleClick}
