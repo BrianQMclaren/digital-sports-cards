@@ -20,19 +20,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const players = await getAllPlayers();
-    const playerIds = players.map((player) => player.ballDontLieId);
-    const playerStats = await fetchPlayerStats(playerIds);
+    const playerStats = await fetchPlayerStats();
     const playerStatsMoreThan0Mins = playerStats.filter(
       (stats) => parseFloat(stats.min) > 0,
     );
-    const stats: GameInsert[] = playerStatsMoreThan0Mins.map((playerStat) => {
+    const stats: GameInsert[] = [];
+    for (const playerStat of playerStatsMoreThan0Mins) {
       const player = players.find(
         (player) => player.ballDontLieId === playerStat.player.id,
       );
       if (!player) {
-        throw new Error("Player not found");
+        console.warn(
+          `Skipping game stats for unknown player ${playerStat.player.id}`,
+        );
+        continue;
       }
-      const insert: GameInsert = {
+      stats.push({
         ballDontLieId: playerStat.id,
         playerId: player.id,
         date: new Date(playerStat.game.date),
@@ -40,10 +43,11 @@ export async function GET(req: NextRequest) {
         rebounds: playerStat.reb,
         assists: playerStat.ast,
         steals: playerStat.stl,
-      };
-      return insert;
-    });
-    await db.insert(gamesTable).values(stats).onConflictDoNothing();
+      });
+    }
+    if (stats.length > 0) {
+      await db.insert(gamesTable).values(stats).onConflictDoNothing();
+    }
 
     // Fetch all recent player games in ONE query
 
@@ -83,7 +87,10 @@ export async function GET(req: NextRequest) {
       );
 
       if (!player) {
-        throw new Error(`${playerStat.id} not found`);
+        console.warn(
+          `Skipping heat update for unknown player ${playerStat.player.id}`,
+        );
+        continue;
       }
       // Filter a recent player games to get only the last 5 games for the current player
       const playerGames = recentPlayerGames.filter(
