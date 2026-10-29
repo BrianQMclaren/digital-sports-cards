@@ -28,6 +28,11 @@ export default function LandingPage() {
                 Start Trading
               </Button>
             </Link>
+            <Link href="/signin">
+              <Button className="bg-white hover:bg-gray-200 text-courtside-black px-8 py-6 text-lg">
+                Sign In
+              </Button>
+            </Link>
           </div>
         </div>
 

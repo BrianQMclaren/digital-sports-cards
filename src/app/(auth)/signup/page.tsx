@@ -2,6 +2,7 @@
 
 import { ActionResponse, signUpAction, SignUpData } from "@/actions/auth";
 import { useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
@@ -126,6 +127,12 @@ export default function SignUpForm() {
             Sign Up
           </Button>
         </form>
+        <p className="mt-6 text-center text-sm text-gray-400">
+          Already have an account?{" "}
+          <Link href="/signin" className="text-ignite-orange hover:underline">
+            Sign in
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

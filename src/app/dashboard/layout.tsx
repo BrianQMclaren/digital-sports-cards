@@ -23,12 +23,12 @@ export default async function DashboardLayout({
         </aside>
         {/* Main Content Area */}
         <main className="rounded-xl bg-panel flex-1 overflow-y-auto relative">
-          <header className="h-16 border-b border-white/10 flex justify-between items-center px-6 bg-black/40 backdrop-blur-md sticky top-0 z-20">
+          <header className="min-h-16 py-3 md:py-0 border-b border-white/10 flex justify-between items-center px-6 bg-black/40 backdrop-blur-md sticky top-0 z-20">
             <div className="p-2 font-sans font-black text-xl text-white">
               HEAT<span className="text-ignite-orange">CHECK</span>
             </div>
-            <div className="flex items-center gap-6">
-              <span className="font-mono text-sm text-gray-400">
+            <div className="flex flex-col items-end gap-2 md:flex-row md:items-center md:gap-6">
+              <span className="whitespace-nowrap font-mono text-sm text-gray-400">
                 Balance{" "}
                 <span className="font-black text-white">
                   ${(user.virtualBalance ?? 0).toFixed(2)}

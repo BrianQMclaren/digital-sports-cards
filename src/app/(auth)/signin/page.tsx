@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ActionResponse, signInAction, SignInData } from "@/actions/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -79,6 +80,12 @@ export default function SignInForm() {
             Sign In
           </Button>
         </form>
+        <p className="mt-6 text-center text-sm text-gray-400">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-ignite-orange hover:underline">
+            Sign up
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );
