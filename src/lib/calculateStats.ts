@@ -106,3 +106,10 @@ export function calculatePortfolioSummary(cards: UserCard[], balance: number) {
     totalReturnPercent,
   };
 }
+
+export function calculatePriceChangePercent(
+  current: number,
+  previous: number,
+): number {
+  return ((current - previous) / previous) * 100;
+}

@@ -3,10 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import avatar from "../../public/player-avatar.png";
 import { CardGlow } from "@/components/ui/card-glow";
+import { PriceTicker } from "@/components/PriceTicker";
+
+// Prices only change nightly; the update-games cron also revalidates "/".
+export const revalidate = 3600;
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-courtside-black text-white">
+      <PriceTicker variant="bar" />
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-24 flex flex-col md:flex-row items-center gap-12">
         <div className="flex-1 space-y-6">

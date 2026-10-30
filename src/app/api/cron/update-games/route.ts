@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { fetchPlayerStats } from "@/actions/playerStats";
 import db from "@/db";
 import { getAllPlayers } from "@/lib/dal";
@@ -98,6 +99,12 @@ export async function GET(req: NextRequest) {
       );
 
       const slicedGames = playerGames.slice(0, 5);
+      if (slicedGames.length === 0) {
+        console.warn(
+          `No recorded games for player ${player.id}, skipping reprice`,
+        );
+        continue;
+      }
 
       const score = calculateHeatScore(slicedGames);
       const price = calculateCurrentPrice(score);
@@ -134,6 +141,7 @@ export async function GET(req: NextRequest) {
         gamesPlayed: playerGames.length,
         heatCheckScore: score,
         currentPrice: price,
+        previousPrice: player.currentPrice,
         lastUpdated: new Date(),
       };
 
@@ -142,6 +150,8 @@ export async function GET(req: NextRequest) {
         .set(update)
         .where(eq(playersTable.ballDontLieId, playerStat.player.id));
     }
+    // The landing page is cached for an hour; show tonight's prices right away.
+    revalidatePath("/");
     return NextResponse.json({ success: true });
   } catch (error) {
     if (!(error instanceof Error)) {
