@@ -6,11 +6,14 @@ import { ArrowUpRight } from "lucide-react";
 import { getCardsForUser, getCurrentUser } from "@/lib/dal";
 import { redirect } from "next/navigation";
 import { PlayerCard } from "@/components/PlayerCard";
+import { PortfolioSummary } from "@/components/PortfolioSummary";
+import { calculatePortfolioSummary } from "@/lib/calculateStats";
 
 export default async function Dashboard() {
   const user = await getCurrentUser();
   if (!user) redirect("/signin");
   const cards = await getCardsForUser(user.id);
+  const summary = calculatePortfolioSummary(cards, user.virtualBalance ?? 0);
 
   return (
     <div className="space-y-10">
@@ -32,6 +35,8 @@ export default async function Dashboard() {
           </Button>
         </div>
       </div>
+
+      <PortfolioSummary {...summary} />
 
       <section>
         <h2 className="text-sm font-mono text-gray-400 uppercase tracking-[0.2em] mb-6">
