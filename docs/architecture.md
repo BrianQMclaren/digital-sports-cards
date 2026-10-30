@@ -12,6 +12,7 @@ Status: MVP in progress
 - Selling cards: sell a held card at the player's current price from the dashboard, with a profit/loss confirm step (`POST /api/sell-card`)
 - Virtual balance shown on the dashboard and in the Draft Room
 - Portfolio summary on the dashboard (net worth, total return, cash, holdings)
+- Heat Index price ticker (biggest nightly moves) on the landing page and dashboard
 - Nightly data sync: player roster + game stats, Heat Score and price recalculation
 
 ## Not Built Yet
@@ -34,7 +35,7 @@ Status: MVP in progress
 ## Database Design
 
 - **usersTable:** Identity, argon2 password hash, and virtual balance (default 1,000).
-- **playersTable:** Source of truth for each athlete: rolling stat averages, Heat Score, current price. `performanceContext` (jsonb) and `latestInsight` are reserved for future AI features.
+- **playersTable:** Source of truth for each athlete: rolling stat averages, Heat Score, current price, and `previousPrice` (the price before the latest nightly update, used by the Heat Index ticker). `performanceContext` (jsonb) and `latestInsight` are reserved for future AI features.
 - **gamesTable:** One row per player per game (points, rebounds, assists, steals). Indexed on player + date for fast "last 5 games" lookups. This is the dataset for future AI trend analysis.
 - **cardsTable:** Links users to players. Stores `buyPrice` to calculate ROI against the player's current price. Selling sets `soldAt` and `sellPrice`; sold cards stay as rows but drop out of holdings. A user can hold one unsold card per player (partial unique index `cards_user_player_active_unique`), so a player can be re-drafted after selling.
 
@@ -77,7 +78,7 @@ Built on jose instead of a third-party auth provider.
 Two Vercel Cron jobs, both protected by a `CRON_SECRET` bearer token:
 
 - **09:50 UTC, `/api/load-players`:** Pulls active players from BallDontLie and inserts any new ones.
-- **10:00 UTC, `/api/cron/update-games`:** Fetches the previous day's stat lines, stores games for players who logged minutes, then recalculates each player's averages, Heat Score, and price from their last 5 games.
+- **10:00 UTC, `/api/cron/update-games`:** Fetches the previous day's stat lines, stores games for players who logged minutes, then recalculates each player's averages, Heat Score, and price from their last 5 games, saving the old price as `previousPrice`. Players with no recorded games are skipped instead of being repriced. Finishes by revalidating the landing page so the ticker shows the new prices.
 
 **Why:** Stats only change once a day, so a nightly batch is cheaper and simpler than polling. 10:00 UTC is roughly 5 to 6 AM ET, after games finish and before morning traffic.
 

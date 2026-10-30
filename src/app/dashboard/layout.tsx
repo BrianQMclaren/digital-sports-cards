@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { signOut } from "@/actions/auth";
 import { getCurrentUser } from "@/lib/dal";
 import { redirect } from "next/navigation";
+import { PriceTicker } from "@/components/PriceTicker";
 
 export default async function DashboardLayout({
   children,
@@ -44,10 +45,8 @@ export default async function DashboardLayout({
           <div className="p-8">{children}</div>
         </main>
       </div>
-      <div className="flex bg-panel rounded-xl p-6 gap-8 text-sm font-mono text-gray-400 mt-4">
-        <span className="text-stat-green">LIVE: LAL +2.5</span>
-        <span>NYK -1.0</span>
-        <span className="text-ignite-orange animate-pulse">MARKET OPEN</span>
+      <div className="mt-4">
+        <PriceTicker variant="panel" />
       </div>
     </div>
   );

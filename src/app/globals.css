@@ -27,6 +27,17 @@
   --color-panel: var(--panel);
 
   --radius-md: 0.625rem;
+
+  /* 4. Heat Index ticker: the track holds two copies, so -50% is one loop */
+  --animate-ticker: ticker 40s linear infinite;
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 :root {
