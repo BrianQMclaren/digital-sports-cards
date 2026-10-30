@@ -1,4 +1,5 @@
 import { Game } from "./types";
+import type { UserCard } from "./types";
 
 // Average NBA player: ~11 pts, ~4.5 rebounds, ~2.5 assists, ~0.8 steals
 // Heat Score formula = (11 × 1.0) + (4.2 × 0.8) + (2.0 × 0.8) + (0.8 × 1.2) = score
@@ -84,4 +85,24 @@ export function calculateROIPercent(
   buyPrice: number,
 ): number {
   return ((currentPrice - buyPrice) / buyPrice) * 100;
+}
+
+// Matches the usersTable virtualBalance default.
+export const STARTING_BALANCE = 1000;
+
+export function calculatePortfolioSummary(cards: UserCard[], balance: number) {
+  const cash = balance;
+  const holdingsValue = cards.reduce((sum, card) => sum + card.currentPrice, 0);
+  const holdingsCount = cards.length;
+  const netWorth = cash + holdingsValue;
+  const totalReturn = netWorth - STARTING_BALANCE;
+  const totalReturnPercent = (totalReturn / STARTING_BALANCE) * 100;
+  return {
+    cash,
+    holdingsValue,
+    holdingsCount,
+    netWorth,
+    totalReturn,
+    totalReturnPercent,
+  };
 }

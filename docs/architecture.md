@@ -11,6 +11,7 @@ Status: MVP in progress
 - Draft Room: list of all players, draft a card at current price (atomic balance check + deduction; unaffordable players show "Insufficient funds")
 - Selling cards: sell a held card at the player's current price from the dashboard, with a profit/loss confirm step (`POST /api/sell-card`)
 - Virtual balance shown on the dashboard and in the Draft Room
+- Portfolio summary on the dashboard (net worth, total return, cash, holdings)
 - Nightly data sync: player roster + game stats, Heat Score and price recalculation
 
 ## Not Built Yet
