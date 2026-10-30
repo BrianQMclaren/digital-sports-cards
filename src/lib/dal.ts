@@ -2,7 +2,7 @@ import db from "@/db";
 import { cache } from "react";
 import { cardsTable, playersTable, usersTable } from "@/db/schema";
 import { getAuthPayload } from "@/lib/auth";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function getCurrentUser() {
   const session = await getAuthPayload();
@@ -35,7 +35,7 @@ export const getCardsForUser = async (userId: string) => {
     })
     .from(cardsTable)
     .innerJoin(playersTable, eq(cardsTable.playerId, playersTable.id))
-    .where(eq(cardsTable.userId, userId));
+    .where(and(eq(cardsTable.userId, userId), isNull(cardsTable.soldAt)));
   return cards;
 };
 

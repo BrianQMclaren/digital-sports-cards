@@ -6,9 +6,10 @@ import {
   jsonb,
   integer,
   uuid,
-  unique,
+  uniqueIndex,
   index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // 1. Users
 export const usersTable = pgTable("usersTable", {
@@ -90,11 +91,13 @@ export const cardsTable = pgTable(
       .notNull(),
     buyPrice: doublePrecision("buy_price").notNull(),
     mintedAt: timestamp("minted_at").defaultNow(),
+    soldAt: timestamp("sold_at"),
+    sellPrice: doublePrecision("sell_price"),
   },
   (t) => ({
-    userPlayerUnique: unique("cards_user_player_unique").on(
-      t.userId,
-      t.playerId,
-    ),
+    // One unsold card per player; a user can re-draft after selling.
+    userPlayerActiveUnique: uniqueIndex("cards_user_player_active_unique")
+      .on(t.userId, t.playerId)
+      .where(sql`${t.soldAt} IS NULL`),
   }),
 );

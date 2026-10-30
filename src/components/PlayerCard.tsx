@@ -11,6 +11,7 @@ import {
   calculateROIPercent,
 } from "@/lib/calculateStats";
 import { getPlayerAvatar } from "@/lib/avatars";
+import SellButton from "@/components/SellButton";
 
 type PlayerCardProps =
   | { variant: "portfolio"; card: UserCard }
@@ -135,6 +136,13 @@ export const PlayerCard = (props: PlayerCardProps) => {
           </dl>
         </div>
       </CardContent>
+      {props.variant === "portfolio" && (
+        <SellButton
+          cardId={props.card.id}
+          buyPrice={props.card.buyPrice}
+          currentPrice={props.card.currentPrice}
+        />
+      )}
     </CardGlow>
   );
 };

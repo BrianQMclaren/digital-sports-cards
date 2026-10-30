@@ -32,6 +32,7 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 
 - `src/app/` pages: `/` landing, `(auth)/signin`, `(auth)/signup`, `/dashboard`, `/draft`
 - `src/app/api/draft-player/route.ts` POST, drafts a player for the current user
+- `src/app/api/sell-card/route.ts` POST, sells one of the current user's cards at the player's current price
 - `src/app/api/load-players/route.ts` and `src/app/api/cron/update-games/route.ts` cron jobs (GET)
 - `src/actions/auth.ts` server actions: sign in, sign up, sign out
 - `src/actions/players.ts`, `src/actions/playerStats.ts` BallDontLie fetch helpers (not server actions)
@@ -48,7 +49,8 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 - Heat Score: average over the player's last 5 games of `pts*1.0 + reb*0.8 + ast*0.8 + stl*1.2`, divided by BASELINE (17), times 50, rounded, min 0. 50 = average NBA player.
 - Price: `250 * (score / 50)`, floor of 50.
 - Tiers: score >= 60 is hot ("SURGING"), >= 40 neutral, below 40 cold.
-- A user can own at most one card per player (`cards_user_player_unique`).
+- A user can hold at most one unsold card per player (`cards_user_player_active_unique`).
+- Current holdings queries must filter soldAt IS NULL.
 
 ## Conventions
 
