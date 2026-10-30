@@ -9,12 +9,12 @@ Status: MVP in progress
 - Draft Room player search (client-side, filters by name)
 - Dashboard: user's holdings with current price, Heat Score, tier badge, and ROI
 - Draft Room: list of all players, draft a card at current price (atomic balance check + deduction; unaffordable players show "Insufficient funds")
+- Selling cards: sell a held card at the player's current price from the dashboard, with a profit/loss confirm step (`POST /api/sell-card`)
 - Virtual balance shown on the dashboard and in the Draft Room
 - Nightly data sync: player roster + game stats, Heat Score and price recalculation
 
 ## Not Built Yet
 
-- Selling cards
 - AI insights (`latestInsight` column exists but is unused)
 - Comparison mode
 - List virtualization
@@ -35,7 +35,7 @@ Status: MVP in progress
 - **usersTable:** Identity, argon2 password hash, and virtual balance (default 1,000).
 - **playersTable:** Source of truth for each athlete: rolling stat averages, Heat Score, current price. `performanceContext` (jsonb) and `latestInsight` are reserved for future AI features.
 - **gamesTable:** One row per player per game (points, rebounds, assists, steals). Indexed on player + date for fast "last 5 games" lookups. This is the dataset for future AI trend analysis.
-- **cardsTable:** Links users to players. Stores `buyPrice` to calculate ROI against the player's current price. One card per user per player.
+- **cardsTable:** Links users to players. Stores `buyPrice` to calculate ROI against the player's current price. Selling sets `soldAt` and `sellPrice`; sold cards stay as rows but drop out of holdings. A user can hold one unsold card per player (partial unique index `cards_user_player_active_unique`), so a player can be re-drafted after selling.
 
 ## Heat Score & Pricing
 
@@ -86,7 +86,7 @@ shadcn/ui and Radix provide accessible primitives, and player cards use `aria-la
 
 ## Product Roadmap
 
-- [ ] Marketplace: ~~deduct balance on draft, validate affordability~~ (done, via `db.transaction()`), add selling.
+- [x] Marketplace: ~~deduct balance on draft, validate affordability~~ (done, via `db.transaction()`), ~~add selling~~ (done).
 - [ ] Fuzzy Player Search: upgrade to typo-tolerant search with Postgres pg_trgm.
 - [ ] Comparison Mode: side-by-side performance charts.
 - [ ] AI Insights: generated scouting reports from `gamesTable` data.
