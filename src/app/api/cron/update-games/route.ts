@@ -11,12 +11,20 @@ import {
   calculateHeatScore,
 } from "@/lib/calculateStats";
 import { getAverage } from "@/lib/getAverage";
+import { resetDemoAccount } from "@/lib/demo";
 
 export async function GET(req: NextRequest) {
   const authToken = req.headers.get("authorization")?.replace("Bearer ", "");
 
   if (authToken !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // A demo reset failure must never block the nightly price update.
+  try {
+    await resetDemoAccount();
+  } catch (error) {
+    console.error("Error resetting demo account:", error);
   }
 
   try {

@@ -4,6 +4,7 @@ import db from "@/db/index";
 import { usersTable } from "@/db/schema";
 import { deleteAuthCookie, setAuthCookie } from "@/lib/auth";
 import { findUsername, findUserByEmail } from "@/lib/dal";
+import { DEMO_EMAIL, resetDemoAccount } from "@/lib/demo";
 import * as argon2 from "argon2";
 import z from "zod";
 import { redirect } from "next/navigation";
@@ -147,4 +148,20 @@ export async function signUpAction(
 export async function signOut() {
   await deleteAuthCookie();
   redirect("/signin");
+}
+
+export async function demoSignInAction() {
+  const demoUser = await findUserByEmail(DEMO_EMAIL);
+  // findUserByEmail is request-cached, so use the id the reset returns.
+  const userId = demoUser?.id ?? (await resetDemoAccount());
+
+  await setAuthCookie(userId);
+  redirect("/dashboard");
+}
+
+// From the demo banner: the proxy bounces signed-in users off /signup,
+// so sign out first and land on the signup form instead of /signin.
+export async function demoSignUpAction() {
+  await deleteAuthCookie();
+  redirect("/signup");
 }
