@@ -4,6 +4,7 @@ import Image from "next/image";
 import avatar from "../../public/player-avatar.png";
 import { CardGlow } from "@/components/ui/card-glow";
 import { PriceTicker } from "@/components/PriceTicker";
+import { demoSignInAction } from "@/actions/auth";
 
 // Prices only change nightly; the update-games cron also revalidates "/".
 export const revalidate = 3600;
@@ -27,18 +28,30 @@ export default function LandingPage() {
             Real-time equity trading for the modern sports fan. Analyze. Trade.
             Dominate the league.
           </p>
-          <div className="flex gap-4">
-            <Link href="/signup">
-              <Button className="bg-ignite-orange hover:bg-orange-700 text-white px-8 py-6 text-lg">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link href="/signup" className="w-full sm:w-auto">
+              <Button className="bg-ignite-orange hover:bg-orange-700 text-white px-8 py-6 text-lg w-full sm:w-auto">
                 Start Trading
               </Button>
             </Link>
-            <Link href="/signin">
-              <Button className="bg-white hover:bg-gray-200 text-courtside-black px-8 py-6 text-lg">
+            <Link href="/signin" className="w-full sm:w-auto">
+              <Button className="bg-white hover:bg-gray-200 text-courtside-black px-8 py-6 text-lg w-full sm:w-auto">
                 Sign In
               </Button>
             </Link>
+            <form action={demoSignInAction} className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                className="bg-transparent hover:bg-white/10 border border-white/20 text-white px-8 py-6 text-lg w-full sm:w-auto"
+              >
+                Try the Demo
+              </Button>
+            </form>
           </div>
+          <p className="text-sm text-gray-500">
+            No sign-up needed. The demo account is shared and resets every
+            morning.
+          </p>
         </div>
 
         <CardGlow

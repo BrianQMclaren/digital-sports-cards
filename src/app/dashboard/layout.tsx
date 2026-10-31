@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-import { signOut } from "@/actions/auth";
+import { demoSignUpAction, signOut } from "@/actions/auth";
+import { DEMO_EMAIL } from "@/lib/demo";
 import { getCurrentUser } from "@/lib/dal";
 import { redirect } from "next/navigation";
 import { PriceTicker } from "@/components/PriceTicker";
@@ -42,6 +43,21 @@ export default async function DashboardLayout({
               </form>
             </div>
           </header>
+          {user.email === DEMO_EMAIL && (
+            <div className="mx-8 mt-6 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-ignite-orange/30 bg-ignite-orange/10 px-4 py-2 font-mono text-sm text-ignite-orange">
+              <span>
+                You&apos;re in the shared demo. It resets every morning.
+              </span>
+              <form action={demoSignUpAction}>
+                <button
+                  type="submit"
+                  className="cursor-pointer font-bold underline-offset-4 hover:underline"
+                >
+                  Create your own account →
+                </button>
+              </form>
+            </div>
+          )}
           <div className="p-8">{children}</div>
         </main>
       </div>

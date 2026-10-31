@@ -40,6 +40,7 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 - `src/lib/dal.ts` DB read helpers (getCurrentUser, getCardsForUser, getMarketPlayers, ...)
 - `src/lib/auth.ts` JWT and cookie helpers
 - `src/lib/calculateStats.ts` Heat Score, price, heat tiers, ROI
+- `src/lib/demo.ts` shared demo account: DEMO_EMAIL, resetDemoAccount()
 - `src/lib/types.ts` Zod schemas for BallDontLie responses and inferred DB types
 - `src/proxy.ts` Next 16 proxy (formerly middleware): auth redirects for `/dashboard` and auth pages
 - `src/components/PriceTicker.tsx` Heat Index ticker (biggest nightly price moves), on the landing page and dashboard
@@ -53,6 +54,7 @@ Issues are tracked in GitHub Issues. Use the `gh` CLI to read them.
 - A user can hold at most one unsold card per player (`cards_user_player_active_unique`).
 - Current holdings queries must filter soldAt IS NULL.
 - previousPrice is the price before the latest nightly update; the cron skips repricing players with no recorded games.
+- The demo account (DEMO_EMAIL) is reset at the start of every update-games run, before repricing. Never special-case the demo user anywhere else.
 
 ## Conventions
 
