@@ -98,8 +98,10 @@ export const PlayerCard = (props: PlayerCardProps) => {
                   <p
                     className={`text-md font-bold ${positive ? "text-green-500" : "text-red-500"}`}
                   >
-                    {positive ? "▲" : "▼"} {positive ? "+" : ""}
-                    {percent.toFixed(1)}%
+                    {positive ? "▲" : "▼"}{" "}
+                    {percent === null
+                      ? "—"
+                      : `${positive ? "+" : ""}${percent.toFixed(1)}%`}
                   </p>
                 );
               })()}

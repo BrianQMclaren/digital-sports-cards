@@ -77,8 +77,8 @@ export default function SellButton(props: SellButtonProps) {
               Sell for ${props.currentPrice.toFixed(2)}
             </span>
             <span className={`text-sm font-bold ${profitColor}`}>
-              {sign}${Math.abs(profit).toFixed(2)} ({sign}
-              {Math.abs(percent).toFixed(1)}%)
+              {sign}${Math.abs(profit).toFixed(2)}
+              {percent !== null && ` (${sign}${Math.abs(percent).toFixed(1)}%)`}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-2">
