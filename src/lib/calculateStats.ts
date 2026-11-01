@@ -80,10 +80,13 @@ export function isProfit(profitValue: number): boolean {
   return profit;
 }
 
+// Null when there's no valid buy price: legacy cards drafted before
+// unpriced players were blocked have buyPrice 0, and dividing gives Infinity.
 export function calculateROIPercent(
   currentPrice: number,
   buyPrice: number,
-): number {
+): number | null {
+  if (buyPrice <= 0) return null;
   return ((currentPrice - buyPrice) / buyPrice) * 100;
 }
 
