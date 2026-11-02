@@ -79,7 +79,7 @@ Built on jose instead of a third-party auth provider.
 Two Vercel Cron jobs, both protected by a `CRON_SECRET` bearer token:
 
 - **09:50 UTC, `/api/load-players`:** Pulls active players from BallDontLie and inserts any new ones.
-- **10:00 UTC, `/api/cron/update-games`:** First resets the shared demo account (`src/lib/demo.ts`): deletes its cards and re-drafts up to 4 of the hottest priced players for $850 or less. A reset failure is logged and doesn't block the rest of the run. Then fetches the previous day's stat lines, stores games for players who logged minutes, then recalculates each player's averages, Heat Score, and price from their last 5 games, saving the old price as `previousPrice`. Players with no recorded games are skipped instead of being repriced. Finishes by revalidating the landing page so the ticker shows the new prices.
+- **10:00 UTC, `/api/cron/update-games`:** First resets the shared demo account (`src/lib/demo.ts`): deletes its cards and re-drafts up to 4 cards within $850, preferring players with custom avatars (`STAR_AVATAR_MAP`) and then the hottest priced players, skipping any that would go over budget. A reset failure is logged and doesn't block the rest of the run. Then fetches the previous day's stat lines, stores games for players who logged minutes, then recalculates each player's averages, Heat Score, and price from their last 5 games, saving the old price as `previousPrice`. Players with no recorded games are skipped instead of being repriced. Finishes by revalidating the landing page so the ticker shows the new prices.
 
 **Why:** Stats only change once a day, so a nightly batch is cheaper and simpler than polling. 10:00 UTC is roughly 5 to 6 AM ET, after games finish and before morning traffic.
 

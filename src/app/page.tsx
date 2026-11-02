@@ -25,8 +25,8 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="text-xl text-gray-400 font-sans">
-            Real-time equity trading for the modern sports fan. Analyze. Trade.
-            Dominate the league.
+            A stock market for NBA players. Prices move every night based on
+            real game stats. Draft. Trade. Dominate the league.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link href="/signup" className="w-full sm:w-auto">

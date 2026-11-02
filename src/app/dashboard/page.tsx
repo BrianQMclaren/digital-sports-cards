@@ -21,7 +21,7 @@ export default async function Dashboard() {
       <div className="flex justify-between flex-col">
         <div className="mb-4">
           <p className="text-gray-500 font-medium">
-            Market is open. Build your portfolio.
+            Prices update nightly. Build your portfolio.
           </p>
         </div>
         <div>
