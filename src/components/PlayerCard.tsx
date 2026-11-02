@@ -93,15 +93,23 @@ export const PlayerCard = (props: PlayerCardProps) => {
                   player.currentPrice,
                   buyPrice,
                 );
+                // Fresh drafts are bought at the current price, so they sit at
+                // break-even until the next nightly reprice. Show those (and
+                // $0-buy cards with no %) in neutral gray, like SellButton.
+                if (profit === 0 || percent === null) {
+                  return (
+                    <p className="text-md font-bold text-gray-400">
+                      {percent === null ? "—" : "0.0%"}
+                    </p>
+                  );
+                }
                 const positive = isProfit(profit);
                 return (
                   <p
                     className={`text-md font-bold ${positive ? "text-green-500" : "text-red-500"}`}
                   >
-                    {positive ? "▲" : "▼"}{" "}
-                    {percent === null
-                      ? "—"
-                      : `${positive ? "+" : ""}${percent.toFixed(1)}%`}
+                    {positive ? "▲" : "▼"} {positive ? "+" : ""}
+                    {percent.toFixed(1)}%
                   </p>
                 );
               })()}
