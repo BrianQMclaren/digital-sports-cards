@@ -6,7 +6,7 @@ A stock market for NBA players. Draft player cards, and watch their prices move 
 
 Click **Try the Demo**, no sign-up needed.
 
-![HeatCheck dashboard](docs/screenshot.png)
+![HeatCheck dashboard](public/readme-dashboard.png)
 
 ## How it works
 
