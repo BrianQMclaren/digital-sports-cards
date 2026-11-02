@@ -3,6 +3,7 @@ import * as argon2 from "argon2";
 import { desc, eq, isNotNull } from "drizzle-orm";
 import db from "@/db/index";
 import { cardsTable, playersTable, usersTable } from "@/db/schema";
+import { STAR_AVATAR_MAP } from "@/lib/avatars";
 import { STARTING_BALANCE } from "@/lib/calculateStats";
 
 export const DEMO_EMAIL = "demo@heatcheck.app";
@@ -10,6 +11,7 @@ export const DEMO_USERNAME = "demo";
 
 const DEMO_MAX_CARDS = 4;
 const DEMO_MAX_SPEND = 850;
+const DEMO_CANDIDATE_POOL = 50;
 
 // Wipes the shared demo account and re-seeds it with a starter portfolio.
 // Creates the demo user if it doesn't exist. Returns the demo user's id.
@@ -40,17 +42,32 @@ export async function resetDemoAccount(): Promise<string> {
     await tx.delete(cardsTable).where(eq(cardsTable.userId, demoUser.id));
 
     const candidates = await tx
-      .select({ id: playersTable.id, currentPrice: playersTable.currentPrice })
+      .select({
+        id: playersTable.id,
+        currentPrice: playersTable.currentPrice,
+        ballDontLieId: playersTable.ballDontLieId,
+      })
       .from(playersTable)
       .where(isNotNull(playersTable.previousPrice))
       .orderBy(desc(playersTable.heatCheckScore))
-      .limit(DEMO_MAX_CARDS);
+      .limit(DEMO_CANDIDATE_POOL);
 
-    // Stop at the first player that would push the total over the cap.
+    // Players with custom avatars first; sort is stable, so heat order holds
+    // within each group.
+    const hasStarAvatar = (ballDontLieId: number) =>
+      ballDontLieId in STAR_AVATAR_MAP;
+    const ordered = [...candidates].sort(
+      (a, b) =>
+        Number(hasStarAvatar(b.ballDontLieId)) -
+        Number(hasStarAvatar(a.ballDontLieId)),
+    );
+
+    // Skip players that would push the total over the cap and keep looking.
     const picks: typeof candidates = [];
     let totalSpent = 0;
-    for (const player of candidates) {
-      if (totalSpent + player.currentPrice > DEMO_MAX_SPEND) break;
+    for (const player of ordered) {
+      if (picks.length >= DEMO_MAX_CARDS) break;
+      if (totalSpent + player.currentPrice > DEMO_MAX_SPEND) continue;
       picks.push(player);
       totalSpent += player.currentPrice;
     }

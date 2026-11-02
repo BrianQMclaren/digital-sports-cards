@@ -10,11 +10,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Heat Check",
   description:
-    "Trade sports equity in real-time. Buy and sell shares in athletes based on live performance.",
+    "Draft and trade NBA player cards. Prices update nightly from real game stats.",
   openGraph: {
     title: "Heat Check",
     description:
-      "Trade sports equity in real-time. Buy and sell shares in athletes and teams based on live performance.",
+      "Draft and trade NBA player cards. Prices update nightly from real game stats.",
     type: "website",
   },
 };
